@@ -1,11 +1,11 @@
 extends CharacterBody3D
 class_name KinematicFpsController
 
-@export var fire_rate := 13.0
+@export var fire_rate := 11.0
 @export var max_bullet_range := 1000.0
 @export var bullet_impact_scene: PackedScene
 @export var tracer_scene: PackedScene
-@export var bullet_start_margin := 0.5
+@export var bullet_start_margin := 0.2
 @export var muzzle_flash_alpha_curve: Curve
 @export var muzzle_flash_lifetime := 0.05
 @export var smoke_lifetime := 0.3
@@ -334,7 +334,7 @@ func _physics_process(delta: float) -> void:
 		var tracer: Tracer = tracer_scene.instantiate()
 		tracer.start = (
 			query.from
-			+ new_velocity * delta
+			+ new_velocity * delta * 2.0
 			- _camera.global_basis.z * bullet_start_margin
 		)
 		tracer.end = bullet_end

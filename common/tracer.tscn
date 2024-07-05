@@ -4,7 +4,7 @@
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8d8ic"]
 shading_mode = 0
-albedo_color = Color(11.814, 7.372, 5.648, 1)
+albedo_color = Color(5.907, 3.686, 2.824, 1)
 disable_receive_shadows = true
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_va2qk"]

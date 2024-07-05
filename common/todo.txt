@@ -1,11 +1,10 @@
 Todo:
 
+- Bug: gun fire rate not good because bullet firing might not match up with
+  frame rate
+
 - Weapon
-  - Shooting
-  - Tracer
-  - Muzzle flash
-  - Smoke
-  - Impact
+  - More impact effects
   - Make weapon bob with player breathing
   - Overwatch-like weapon bob https://www.youtube.com/watch?v=7Dga-UqdBR8
 - Character controller

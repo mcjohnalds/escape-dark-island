@@ -105,7 +105,7 @@ func set_graphics_preset(graphics_preset: GraphicsPreset) -> void:
 	if OS.get_name() == "Web":
 		for environment in environments:
 			environment.volumetric_fog_enabled = false
-			environment.glow_enabled = false
+			environment.glow_enabled = environment_glow_enabled
 			environment.ssao_enabled = false
 			environment.ssil_enabled = false
 			environment.sdfgi_enabled = false

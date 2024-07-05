@@ -1,8 +1,28 @@
-[gd_scene load_steps=4 format=3 uid="uid://d1y8jdicca0ja"]
+[gd_scene load_steps=11 format=3 uid="uid://d1y8jdicca0ja"]
 
 [ext_resource type="Script" path="res://common/game.gd" id="1_nixut"]
 [ext_resource type="PackedScene" uid="uid://c2t6smyr8xtty" path="res://kinematic_fps_controller/example.tscn" id="2_ivxhn"]
 [ext_resource type="PackedScene" uid="uid://4xgl4drja75q" path="res://ui/main_menu.tscn" id="3_3ao77"]
+[ext_resource type="Texture2D" uid="uid://c3e3e6qpqh5jl" path="res://ui/crosshair.svg" id="3_gck2x"]
+[ext_resource type="Shader" path="res://common/night_vision.gdshader" id="3_wn4tp"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bqx4t"]
+
+[sub_resource type="Gradient" id="Gradient_tuorp"]
+colors = PackedColorArray(0, 0, 0, 0.043, 1, 1, 1, 0.059)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_iaim2"]
+frequency = 0.0066
+domain_warp_enabled = true
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_43mgo"]
+generate_mipmaps = false
+color_ramp = SubResource("Gradient_tuorp")
+noise = SubResource("FastNoiseLite_iaim2")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hmm4h"]
+shader = ExtResource("3_wn4tp")
+shader_parameter/dirt_texture = SubResource("NoiseTexture2D_43mgo")
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_nixut")
@@ -10,6 +30,30 @@ script = ExtResource("1_nixut")
 [node name="Container" type="Node3D" parent="."]
 
 [node name="Example" parent="Container" instance=ExtResource("2_ivxhn")]
+
+[node name="Crosshair" type="TextureRect" parent="."]
+material = SubResource("CanvasItemMaterial_bqx4t")
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_gck2x")
+expand_mode = 1
+
+[node name="NightVisionShader" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_hmm4h")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="MenuContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true

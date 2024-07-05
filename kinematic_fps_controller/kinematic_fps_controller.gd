@@ -4,6 +4,11 @@ class_name KinematicFpsController
 @export var fire_rate := 13.0
 @export var max_bullet_range := 1000.0
 @export var bullet_impact_scene: PackedScene
+@export var tracer_scene: PackedScene
+@export var bullet_start_margin := 0.5
+@export var muzzle_flash_alpha_curve: Curve
+@export var muzzle_flash_lifetime := 0.05
+@export var smoke_lifetime := 0.3
 
 @export_group("Audio")
 
@@ -169,6 +174,15 @@ var _quake_camera_tilt_ratio := 0.0
 @onready var _initial_head_position := _head.position
 @onready var _initial_capsule_height = _capsule.height
 @onready var _bullet_start: Node3D = %BulletStart
+@onready var _smoke: GPUParticles3D = %Smoke
+@onready var _muzzle_flashes: Array[MeshInstance3D] = [
+	%MuzzleFlash1, %MuzzleFlash2, %MuzzleFlash3,
+]
+
+
+func _ready() -> void:
+	_smoke.emitting = false
+	_update_muzzle_flash()
 
 
 func _physics_process(delta: float) -> void:
@@ -297,19 +311,43 @@ func _physics_process(delta: float) -> void:
 		if is_landed_on_floor_this_frame:
 			next_step_cycle = 0.0
 
-	if Input.is_action_pressed("shoot") and Util.get_ticks_sec() - _last_fired_at > 1.0 / fire_rate:
+	# Calculations happen above, side-effects happen below
+
+	var fire_bullet := (
+		Input.is_action_pressed("shoot")
+		and Util.get_ticks_sec() - _last_fired_at > 1.0 / fire_rate
+	)
+	if fire_bullet:
 		_last_fired_at = Util.get_ticks_sec()
 		var query := PhysicsRayQueryParameters3D.new()
 		query.from = _bullet_start.global_position
 		query.to = query.from - _camera.global_basis.z * max_bullet_range
 		var collision := get_world_3d().direct_space_state.intersect_ray(query)
+
+		var bullet_end: Vector3
+		if collision:
+			bullet_end = collision.position
+		else:
+			bullet_end = query.to
+
+		var tracer: Tracer = tracer_scene.instantiate()
+		tracer.start = (
+			query.from
+			+ new_velocity * delta
+			- _camera.global_basis.z * bullet_start_margin
+		)
+		tracer.end = bullet_end
+		get_parent().add_child(tracer)
+
 		if collision:
 			var impact: GPUParticles3D = bullet_impact_scene.instantiate()
 			impact.position = collision.position
 			impact.one_shot = true
 			impact.emitting = true
 			get_parent().add_child(impact)
-	# Calculations happen above, side-effects happen below
+
+	_smoke.emitting = Util.get_ticks_sec() - _last_fired_at < smoke_lifetime
+	_update_muzzle_flash()
 
 	if quake_camera_tilt_enabled:
 		var target := input_horizontal.x
@@ -567,3 +605,13 @@ func _get_next_velocity(
 	if is_jumping:
 		vel.y = jump_height
 	return vel
+
+
+func _update_muzzle_flash() -> void:
+	for muzzle_flash in _muzzle_flashes:
+		var material: StandardMaterial3D = muzzle_flash.material_override
+		var t := Util.get_ticks_sec()
+		var d := t - _last_fired_at
+		material.albedo_color.a = (
+			muzzle_flash_alpha_curve.sample_baked(d / muzzle_flash_lifetime)
+		)

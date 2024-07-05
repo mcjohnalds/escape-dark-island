@@ -1,0 +1,129 @@
+[gd_scene load_steps=35 format=3 uid="uid://2oxdgu03lnbk"]
+
+[ext_resource type="Script" path="res://kinematic_fps_controller/kinematic_fps_controller.gd" id="2_8r0nc"]
+[ext_resource type="PackedScene" uid="uid://7nghfugqxiqf" path="res://common/metal_impact.tscn" id="2_86agt"]
+[ext_resource type="Environment" uid="uid://b3cn01u84faiy" path="res://common/underwater_environment.tres" id="2_owsda"]
+[ext_resource type="PhysicsMaterial" path="res://kinematic_fps_controller/physics/grass.tres" id="4_ulqss"]
+[ext_resource type="PhysicsMaterial" uid="uid://bklf2cx3fydt3" path="res://kinematic_fps_controller/physics/stone.tres" id="5_a0l7u"]
+[ext_resource type="PhysicsMaterial" path="res://kinematic_fps_controller/physics/wood.tres" id="6_ulh2i"]
+[ext_resource type="Script" path="res://kinematic_fps_controller/material_audio.gd" id="10_3id2w"]
+[ext_resource type="Curve" path="res://kinematic_fps_controller/bob_curve.tres" id="10_jwnxu"]
+[ext_resource type="AudioStream" uid="uid://c2cl56b4rns2u" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_2.wav" id="12_wuy6q"]
+[ext_resource type="AudioStream" uid="uid://7gjj4wse1p7s" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_3.wav" id="13_ydtah"]
+[ext_resource type="AudioStream" uid="uid://p8tdym4d3gwm" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_4.wav" id="14_78mnj"]
+[ext_resource type="AudioStream" uid="uid://ds7ryp7lrjkbk" path="res://kinematic_fps_controller/jute-dh-steps/stepstone_8.wav" id="15_oitce"]
+[ext_resource type="AudioStream" uid="uid://dygk2exfcwaxj" path="res://kinematic_fps_controller/jute-dh-steps/stepstone_7.wav" id="16_nb44q"]
+[ext_resource type="AudioStream" uid="uid://d1824xmt02a32" path="res://kinematic_fps_controller/jute-dh-steps/stepstone_1.wav" id="17_saan7"]
+[ext_resource type="AudioStream" uid="uid://cxycqe7hdav7o" path="res://kinematic_fps_controller/jute-dh-steps/stepstone_2.wav" id="18_ljqja"]
+[ext_resource type="AudioStream" uid="uid://bfsapqnlf7can" path="res://kinematic_fps_controller/jute-dh-steps/stepwood_1.wav" id="19_0psj7"]
+[ext_resource type="AudioStream" uid="uid://bs6mvjbhqmwtp" path="res://kinematic_fps_controller/audios/crouch_1.ogg" id="19_dvqy3"]
+[ext_resource type="AudioStream" uid="uid://d1h0by0sl1hin" path="res://kinematic_fps_controller/audios/crouch_2.ogg" id="20_0e40x"]
+[ext_resource type="AudioStream" uid="uid://c7fdqytdjvcqe" path="res://kinematic_fps_controller/jute-dh-steps/stepwood_2.wav" id="20_kvx2h"]
+[ext_resource type="AudioStream" uid="uid://dyj8811150sq5" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_1.wav" id="20_qovk2"]
+[ext_resource type="AudioStream" uid="uid://btyn2jp6i5s8l" path="res://kinematic_fps_controller/jute-dh-steps/stepwater_1.wav" id="21_1rkt1"]
+[ext_resource type="AudioStream" uid="uid://b4yst0b74bmiw" path="res://kinematic_fps_controller/audios/crouch_3.ogg" id="21_8kmms"]
+[ext_resource type="AudioStream" uid="uid://b3me04d8q11xf" path="res://kinematic_fps_controller/jute-dh-steps/stepwater_2.wav" id="22_p60vq"]
+[ext_resource type="AudioStream" uid="uid://cs7sum38jhlwf" path="res://kinematic_fps_controller/audios/crouch_4.ogg" id="22_rfhmk"]
+[ext_resource type="AudioStream" uid="uid://by7roe2rtlr51" path="res://kinematic_fps_controller/audios/uncrouch_1.ogg" id="23_326x3"]
+[ext_resource type="PhysicsMaterial" path="res://kinematic_fps_controller/physics/water.tres" id="23_kplyn"]
+[ext_resource type="AudioStream" uid="uid://c7pj78vafhema" path="res://kinematic_fps_controller/audios/uncrouch_2.ogg" id="24_knso1"]
+[ext_resource type="AudioStream" uid="uid://begnjae7wbr3m" path="res://kinematic_fps_controller/audios/uncrouch_3.ogg" id="25_0xsk3"]
+[ext_resource type="PackedScene" uid="uid://cf762veqbirs4" path="res://common/assault_rifle.glb" id="28_e1ex1"]
+
+[sub_resource type="Resource" id="Resource_ju83a"]
+script = ExtResource("10_3id2w")
+physics_material = ExtResource("4_ulqss")
+jump_audio_stream = ExtResource("20_qovk2")
+landed_audio_stream = ExtResource("12_wuy6q")
+step_audio_streams = Array[AudioStream]([ExtResource("20_qovk2"), ExtResource("12_wuy6q"), ExtResource("13_ydtah"), ExtResource("14_78mnj")])
+
+[sub_resource type="Resource" id="Resource_3rmwo"]
+script = ExtResource("10_3id2w")
+physics_material = ExtResource("5_a0l7u")
+jump_audio_stream = ExtResource("15_oitce")
+landed_audio_stream = ExtResource("16_nb44q")
+step_audio_streams = Array[AudioStream]([ExtResource("17_saan7"), ExtResource("18_ljqja")])
+
+[sub_resource type="Resource" id="Resource_rfw5k"]
+script = ExtResource("10_3id2w")
+physics_material = ExtResource("6_ulh2i")
+jump_audio_stream = ExtResource("19_0psj7")
+landed_audio_stream = ExtResource("20_kvx2h")
+step_audio_streams = Array[AudioStream]([ExtResource("19_0psj7"), ExtResource("20_kvx2h")])
+
+[sub_resource type="Resource" id="Resource_kvpuo"]
+script = ExtResource("10_3id2w")
+physics_material = ExtResource("23_kplyn")
+jump_audio_stream = ExtResource("21_1rkt1")
+landed_audio_stream = ExtResource("22_p60vq")
+step_audio_streams = Array[AudioStream]([ExtResource("21_1rkt1"), ExtResource("22_p60vq")])
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fn1rj"]
+
+[node name="KinematicFpsController" type="CharacterBody3D"]
+floor_snap_length = 0.5
+script = ExtResource("2_8r0nc")
+bullet_impact_scene = ExtResource("2_86agt")
+material_audios = Array[ExtResource("10_3id2w")]([SubResource("Resource_ju83a"), SubResource("Resource_3rmwo"), SubResource("Resource_rfw5k"), SubResource("Resource_kvpuo")])
+water_material_audio = SubResource("Resource_kvpuo")
+crouch_audios = Array[AudioStream]([ExtResource("19_dvqy3"), ExtResource("20_0e40x"), ExtResource("21_8kmms"), ExtResource("22_rfhmk")])
+uncrouch_audios = Array[AudioStream]([ExtResource("23_326x3"), ExtResource("24_knso1"), ExtResource("25_0xsk3")])
+head_bob_curve = ExtResource("10_jwnxu")
+underwater_env = ExtResource("2_owsda")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("CapsuleShape3D_fn1rj")
+
+[node name="Head" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.64, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+fov = 80.0
+
+[node name="Gun" parent="Head/Camera3D" instance=ExtResource("28_e1ex1")]
+transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7.71288e-09, 0.303, -0.307, -0.334)
+
+[node name="BulletStart" type="Node3D" parent="Head/Camera3D/Gun"]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, -3.31134e-15, 0, 1, 0, 3.9575e-15, 0, 1, 0.838788, 0.61442, 0)
+
+[node name="HeadRayCast" type="RayCast3D" parent="."]
+target_position = Vector3(0, 1, 0)
+
+[node name="GroundRayCast" type="RayCast3D" parent="."]
+target_position = Vector3(0, -1.5, 0)
+
+[node name="SwimRayCast" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+target_position = Vector3(0, -2, 0)
+collision_mask = 8
+hit_from_inside = true
+collide_with_areas = true
+collide_with_bodies = false
+
+[node name="JumpAudioStreamPlayer" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("20_qovk2")
+bus = &"Effects"
+attenuation_filter_db = -65.4
+
+[node name="StepAudioStreamPlayer" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("20_qovk2")
+bus = &"Effects"
+attenuation_filter_db = -65.4
+
+[node name="LandAudioStreamPlayer" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("20_qovk2")
+bus = &"Effects"
+attenuation_filter_db = -65.4
+
+[node name="CrouchAudioStreamPlayer" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("20_qovk2")
+pitch_scale = 3.0
+bus = &"Effects"
+attenuation_filter_db = -65.4
+
+[node name="UncrouchAudioStreamPlayer" type="AudioStreamPlayer3D" parent="."]
+stream = ExtResource("20_qovk2")
+pitch_scale = 4.0
+bus = &"Effects"
+attenuation_filter_db = -65.4

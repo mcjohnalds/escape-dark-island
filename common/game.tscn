@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://d1y8jdicca0ja"]
+
+[ext_resource type="Script" path="res://common/game.gd" id="1_nixut"]
+[ext_resource type="PackedScene" uid="uid://c2t6smyr8xtty" path="res://kinematic_fps_controller/example.tscn" id="2_ivxhn"]
+[ext_resource type="PackedScene" uid="uid://4xgl4drja75q" path="res://ui/main_menu.tscn" id="3_3ao77"]
+
+[node name="Game" type="Node3D"]
+script = ExtResource("1_nixut")
+
+[node name="Container" type="Node3D" parent="."]
+
+[node name="Example" parent="Container" instance=ExtResource("2_ivxhn")]
+
+[node name="MenuContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainMenu" parent="MenuContainer" instance=ExtResource("3_3ao77")]
+unique_name_in_owner = true
+layout_mode = 2
+pause_menu = true

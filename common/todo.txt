@@ -1,0 +1,56 @@
+Todo:
+
+- Weapon
+  - Shooting
+  - Tracer
+  - Muzzle flash
+  - Smoke
+  - Impact
+  - Make weapon bob with player breathing
+  - Overwatch-like weapon bob https://www.youtube.com/watch?v=7Dga-UqdBR8
+- Character controller
+  - Head check
+- Screen space shaders
+- Custom boot screen
+
+Backlog:
+
+- Reduce number of loading screens or make them look the same
+- UI skinning
+  - Animations
+  - Allow user to select option in option button by clicking, holding,
+    dragging, then releasing
+- Settings
+  - Make esc go back from settings
+  - Performance test various other rendering settings like filtering
+  - Confirm quit popup
+  - Dynamic fov toggle
+  - FOV slider
+  - Head bob toggle
+- Lower blur shader quality depending on graphics preset
+- Character controller
+  - Fix underwater env being displayed too early
+  - Overwatch like bob curve
+  - Special head bob when jumping
+  - Change FOV and crouch height with smoothstep
+  - Swimming should make more noise
+  - Use shape cast or something instead of ray cast so that a bug doesn't
+    happen where the player gets the wrong step sound when walking along the
+    edge of something floating.
+  - Started/stopped floating sounds
+  - Disable crouch underwater, flying, jumping
+  - Fix inconsistent jumping from water
+  - Bonk assist
+- Convert wavs to oggs
+- Interactive music
+- Make export scripts more automated
+- Texture exporter
+- 3D heightmap
+- Vehicle
+- Tracers
+- Night vision
+- Custom icon
+- Make sure use of noise textures is efficient, render to webp if necessary.
+- Copy all assets from past projects
+- Only export necessary resources
+- Cache preload step - store a random checksum in the game with every release

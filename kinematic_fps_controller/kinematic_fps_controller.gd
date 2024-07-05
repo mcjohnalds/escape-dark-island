@@ -9,6 +9,7 @@ class_name KinematicFpsController
 @export var muzzle_flash_alpha_curve: Curve
 @export var muzzle_flash_lifetime := 0.05
 @export var smoke_lifetime := 0.3
+@export var back_speed := 0.6
 
 @export_group("Audio")
 
@@ -580,12 +581,17 @@ func _get_next_velocity(
 		horizontal_velocity.y = 0.0
 
 		var is_accelerating := input_direction.dot(horizontal_velocity) > 0.0
+		var is_backward := input_direction.dot(global_basis.z) > 0.1
+		var back_penalty := (
+			back_speed if is_accelerating and  is_backward else 1.0
+		)
 
 		var a := walk_acceleration if is_accelerating else walk_deceleration
 		if not is_on_floor():
 			a *= air_control
+		a *= back_penalty
 
-		var target := input_direction * move_speed
+		var target := input_direction * move_speed * back_penalty
 		var w := horizontal_velocity.lerp(target, a * delta)
 
 		vel.x = w.x

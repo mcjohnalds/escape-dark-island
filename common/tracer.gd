@@ -7,13 +7,15 @@ var start: Vector3
 var end: Vector3
 var _trail_start_distance := 0.0
 var _trail_end_distance := 0.0
-var _has_rendered := false
+
+func _init() -> void:
+	# We hide initially to prevent the tracer from rendering at position 0,0,0
+	# for the first frame
+	visible = false
 
 
 func _process(delta: float) -> void:
-	if not _has_rendered:
-		_has_rendered = true
-		return
+	visible = true
 	var stage := (
 		"freeing" if _trail_start_distance >= start.distance_to(end)
 		else "shrinking" if _trail_end_distance >= start.distance_to(end)

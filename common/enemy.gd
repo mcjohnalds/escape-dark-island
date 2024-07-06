@@ -14,7 +14,7 @@ var _last_state_transition_at := -1000.0
 @onready var _health := max_health
 @onready var _navigation_agent: NavigationAgent3D = %NavigationAgent3D
 @onready var _eye: Node3D = %Eye
-@onready var _iris: Node3D = %Iris
+@onready var _body: MeshInstance3D = %Body
 
 
 func _ready() -> void:
@@ -32,6 +32,7 @@ func _physics_process(delta: float) -> void:
 	_update_navigation(delta)
 	_update_rotation(delta)
 	_update_eye()
+	_update_body(delta)
 
 
 func damage(amount: float) -> void:
@@ -128,8 +129,17 @@ func _update_eye() -> void:
 	_eye.basis = Basis.looking_at(
 		global_basis.transposed() * dir, Vector3.UP, true
 	)
-	_iris.scale.x = _health / max_health
-	_iris.scale.y = _health / max_health
+
+
+func _update_body(delta: float) -> void:
+	var mesh: QuadMesh = _body.mesh
+	var material: ShaderMaterial = mesh.material
+	material.set_shader_parameter("health", _health / max_health)
+	material.set_shader_parameter(
+		"time",
+		material.get_shader_parameter("time")
+			+ remap(_health, 0.0, max_health, 8.0, 0.5) * delta
+	)
 
 
 func _get_best_retreat_location() -> Node3D:

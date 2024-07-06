@@ -3,7 +3,8 @@ class_name KinematicFpsController
 
 @export var fire_rate := 11.0
 @export var max_bullet_range := 1000.0
-@export var bullet_impact_scene: PackedScene
+@export var goo_bullet_impact_scene: PackedScene
+@export var default_bullet_impact_scene: PackedScene
 @export var tracer_scene: PackedScene
 @export var bullet_start_margin := 0.0
 @export var muzzle_flash_alpha_curve: Curve
@@ -611,7 +612,11 @@ func _update_shooting(delta: float) -> void:
 		get_parent().add_child(tracer)
 
 		if collision:
-			var impact: GPUParticles3D = bullet_impact_scene.instantiate()
+			var scene := (
+				goo_bullet_impact_scene if collision.collider is Enemy
+				else default_bullet_impact_scene
+			)
+			var impact: GPUParticles3D = scene.instantiate()
 			impact.position = collision.position
 			impact.one_shot = true
 			impact.emitting = true

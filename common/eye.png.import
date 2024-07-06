@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cfnkni3gwosx0"
-path.s3tc="res://.godot/imported/smoke_07.png-83e8d317e539377942ddc86d76ac5df1.s3tc.ctex"
-path.etc2="res://.godot/imported/smoke_07.png-83e8d317e539377942ddc86d76ac5df1.etc2.ctex"
+uid="uid://c7u8ylqq7j68l"
+path.s3tc="res://.godot/imported/eye.png-ee921ce258bd85dd023cf7b8452ed8a2.s3tc.ctex"
+path.etc2="res://.godot/imported/eye.png-ee921ce258bd85dd023cf7b8452ed8a2.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/kenney_particle_pack/smoke_07.png"
-dest_files=["res://.godot/imported/smoke_07.png-83e8d317e539377942ddc86d76ac5df1.s3tc.ctex", "res://.godot/imported/smoke_07.png-83e8d317e539377942ddc86d76ac5df1.etc2.ctex"]
+source_file="res://common/eye.png"
+dest_files=["res://.godot/imported/eye.png-ee921ce258bd85dd023cf7b8452ed8a2.s3tc.ctex", "res://.godot/imported/eye.png-ee921ce258bd85dd023cf7b8452ed8a2.etc2.ctex"]
 
 [params]
 

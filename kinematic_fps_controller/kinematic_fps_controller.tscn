@@ -1,8 +1,9 @@
-[gd_scene load_steps=53 format=3 uid="uid://2oxdgu03lnbk"]
+[gd_scene load_steps=54 format=3 uid="uid://2oxdgu03lnbk"]
 
 [ext_resource type="Script" path="res://kinematic_fps_controller/kinematic_fps_controller.gd" id="2_8r0nc"]
 [ext_resource type="PackedScene" uid="uid://7nghfugqxiqf" path="res://common/metal_impact.tscn" id="2_86agt"]
 [ext_resource type="Environment" uid="uid://b3cn01u84faiy" path="res://common/underwater_environment.tres" id="2_owsda"]
+[ext_resource type="PackedScene" uid="uid://dw141fvvxpwhh" path="res://common/goo_impact.tscn" id="2_yniga"]
 [ext_resource type="PackedScene" uid="uid://dvepobheadtv4" path="res://common/tracer.tscn" id="3_83nad"]
 [ext_resource type="PhysicsMaterial" path="res://kinematic_fps_controller/physics/grass.tres" id="4_ulqss"]
 [ext_resource type="PhysicsMaterial" uid="uid://bklf2cx3fydt3" path="res://kinematic_fps_controller/physics/stone.tres" id="5_a0l7u"]
@@ -153,7 +154,8 @@ size = Vector2(1.5, 2)
 [node name="KinematicFpsController" type="CharacterBody3D" groups=["player"]]
 floor_snap_length = 0.5
 script = ExtResource("2_8r0nc")
-bullet_impact_scene = ExtResource("2_86agt")
+goo_bullet_impact_scene = ExtResource("2_yniga")
+default_bullet_impact_scene = ExtResource("2_86agt")
 tracer_scene = ExtResource("3_83nad")
 muzzle_flash_alpha_curve = SubResource("Curve_uibhf")
 material_audios = Array[ExtResource("10_3id2w")]([SubResource("Resource_ju83a"), SubResource("Resource_3rmwo"), SubResource("Resource_rfw5k"), SubResource("Resource_kvpuo")])

@@ -1,7 +1,10 @@
 Todo:
 
+- Barrel gets red hot
 - Bug: gun fire rate not good because bullet firing might not match up with
   frame rate
+
+- Make godot-snappy work with box colliders
 
 - Weapon
   - Shells

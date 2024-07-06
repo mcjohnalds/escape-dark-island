@@ -67,6 +67,8 @@ landed_audio_stream = ExtResource("22_p60vq")
 step_audio_streams = Array[AudioStream]([ExtResource("21_1rkt1"), ExtResource("22_p60vq")])
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fn1rj"]
+radius = 0.3
+height = 1.7
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f8tu5"]
 resource_local_to_scene = true
@@ -148,7 +150,7 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_k3mb8")
 size = Vector2(1.5, 2)
 
-[node name="KinematicFpsController" type="CharacterBody3D"]
+[node name="KinematicFpsController" type="CharacterBody3D" groups=["player"]]
 floor_snap_length = 0.5
 script = ExtResource("2_8r0nc")
 bullet_impact_scene = ExtResource("2_86agt")
@@ -159,13 +161,20 @@ water_material_audio = SubResource("Resource_kvpuo")
 crouch_audios = Array[AudioStream]([ExtResource("19_dvqy3"), ExtResource("20_0e40x"), ExtResource("21_8kmms"), ExtResource("22_rfhmk")])
 uncrouch_audios = Array[AudioStream]([ExtResource("23_326x3"), ExtResource("24_knso1"), ExtResource("25_0xsk3")])
 head_bob_curve = ExtResource("10_jwnxu")
+gravity_multiplier = 1.5
+base_speed = 5.0
+walk_acceleration = 4.0
+walk_deceleration = 5.0
+air_control = 0.1
+step_interval = 3.0
+jump_height = 3.0
 underwater_env = ExtResource("2_owsda")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_fn1rj")
 
 [node name="Head" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.64, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.46, 2.08165e-12)
 
 [node name="Camera3D" type="Camera3D" parent="Head"]
 fov = 80.0
@@ -175,7 +184,7 @@ transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7
 
 [node name="BulletStart" type="Node3D" parent="Head/Camera3D/Gun"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, -8.34494e-15, 0, 1, 0, 7.51022e-15, 0, 1, 3.59774, 0.61442, 1.19209e-07)
+transform = Transform3D(1, 0, -1.33785e-14, 0, 1, 0, 7.51022e-15, 0, 1, 3.59774, 0.61442, 1.19209e-07)
 
 [node name="MuzzleFlash1" type="MeshInstance3D" parent="Head/Camera3D/Gun/BulletStart"]
 unique_name_in_owner = true
@@ -207,14 +216,14 @@ process_material = SubResource("ParticleProcessMaterial_6lf27")
 draw_pass_1 = SubResource("QuadMesh_cxfwg")
 
 [node name="HeadRayCast" type="RayCast3D" parent="."]
-target_position = Vector3(0, 1, 0)
+target_position = Vector3(2.08165e-12, 0.85, 2.08165e-12)
 
 [node name="GroundRayCast" type="RayCast3D" parent="."]
-target_position = Vector3(0, -1.5, 0)
+target_position = Vector3(2.08165e-12, -1.2, 2.08165e-12)
 
 [node name="SwimRayCast" type="RayCast3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
-target_position = Vector3(0, -2, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.85, 2.08165e-12)
+target_position = Vector3(2.08165e-12, -1.7, 2.08165e-12)
 collision_mask = 8
 hit_from_inside = true
 collide_with_areas = true

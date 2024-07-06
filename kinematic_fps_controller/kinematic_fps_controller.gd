@@ -5,7 +5,7 @@ class_name KinematicFpsController
 @export var max_bullet_range := 1000.0
 @export var bullet_impact_scene: PackedScene
 @export var tracer_scene: PackedScene
-@export var bullet_start_margin := 0.2
+@export var bullet_start_margin := 0.0
 @export var muzzle_flash_alpha_curve: Curve
 @export var muzzle_flash_lifetime := 0.05
 @export var smoke_lifetime := 0.3
@@ -321,8 +321,9 @@ func _physics_process(delta: float) -> void:
 	if fire_bullet:
 		_last_fired_at = Util.get_ticks_sec()
 		var query := PhysicsRayQueryParameters3D.new()
-		query.from = _bullet_start.global_position
-		query.to = query.from - _camera.global_basis.z * max_bullet_range
+		query.from = _camera.global_position
+		query.to = _camera.global_position - _camera.global_basis.z * max_bullet_range
+		query.exclude = [get_rid()]
 		var collision := get_world_3d().direct_space_state.intersect_ray(query)
 
 		var bullet_end: Vector3
@@ -333,8 +334,8 @@ func _physics_process(delta: float) -> void:
 
 		var tracer: Tracer = tracer_scene.instantiate()
 		tracer.start = (
-			query.from
-			+ new_velocity * delta * 2.0
+			_bullet_start.global_position
+			+ new_velocity * delta
 			- _camera.global_basis.z * bullet_start_margin
 		)
 		tracer.end = bullet_end
@@ -347,6 +348,9 @@ func _physics_process(delta: float) -> void:
 			impact.emitting = true
 			get_parent().add_child(impact)
 
+			if collision.collider is Enemy:
+				var enemy: Enemy = collision.collider
+				enemy.damage(1.0)
 	_smoke.emitting = Util.get_ticks_sec() - _last_fired_at < smoke_lifetime
 	_update_muzzle_flash()
 
@@ -398,7 +402,7 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseMotion:
 		var e: InputEventMouseMotion = event
-		var s := mouse_sensitivity / 1000.0 * global.mouse_sensitivity
+		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
 		var i := -1.0 if global.invert_mouse else 1.0
 		rotation.y -= e.relative.x * s
 		_head.rotation.x = clamp(

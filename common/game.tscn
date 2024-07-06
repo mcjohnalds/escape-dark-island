@@ -1,7 +1,7 @@
 [gd_scene load_steps=11 format=3 uid="uid://d1y8jdicca0ja"]
 
 [ext_resource type="Script" path="res://common/game.gd" id="1_nixut"]
-[ext_resource type="PackedScene" uid="uid://c2t6smyr8xtty" path="res://kinematic_fps_controller/example.tscn" id="2_ivxhn"]
+[ext_resource type="PackedScene" uid="uid://dsinasa0vu1ih" path="res://common/level.tscn" id="2_m3jn1"]
 [ext_resource type="PackedScene" uid="uid://4xgl4drja75q" path="res://ui/main_menu.tscn" id="3_3ao77"]
 [ext_resource type="Texture2D" uid="uid://c3e3e6qpqh5jl" path="res://ui/crosshair.svg" id="3_gck2x"]
 [ext_resource type="Shader" path="res://common/night_vision.gdshader" id="3_wn4tp"]
@@ -29,7 +29,7 @@ script = ExtResource("1_nixut")
 
 [node name="Container" type="Node3D" parent="."]
 
-[node name="Example" parent="Container" instance=ExtResource("2_ivxhn")]
+[node name="Level" parent="Container" instance=ExtResource("2_m3jn1")]
 
 [node name="Crosshair" type="TextureRect" parent="."]
 material = SubResource("CanvasItemMaterial_bqx4t")

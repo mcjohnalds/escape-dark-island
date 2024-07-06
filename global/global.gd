@@ -132,3 +132,7 @@ func play_click_small_sound() -> void:
 
 func play_hover_sound() -> void:
 	_hover_audio_stream_player.play()
+
+
+func get_player() -> KinematicFpsController:
+	return get_tree().get_first_node_in_group("player")

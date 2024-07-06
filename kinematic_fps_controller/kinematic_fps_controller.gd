@@ -624,7 +624,7 @@ func _update_shooting(delta: float) -> void:
 
 			if collision.collider is Enemy:
 				var enemy: Enemy = collision.collider
-				enemy.damage(10.0)
+				enemy.damage(1.0)
 	_smoke.emitting = Util.get_ticks_sec() - _last_fired_at < smoke_lifetime
 	_update_muzzle_flash()
 

@@ -187,6 +187,32 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_update_movement(delta)
+	_update_shooting(delta)
+
+
+func _input(event: InputEvent) -> void:
+	if not Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+		return
+	if event is InputEventMouseMotion:
+		var e: InputEventMouseMotion = event
+		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
+		var i := -1.0 if global.invert_mouse else 1.0
+		rotation.y -= e.relative.x * s
+		_head.rotation.x = clamp(
+			_head.rotation.x - e.relative.y * s * i,
+			-vertical_angle_limit,
+			vertical_angle_limit
+		)
+	elif event.is_action_pressed("move_crouch"):
+		_crouch_audio_stream_player.stream = crouch_audios.pick_random()
+		_crouch_audio_stream_player.play()
+	elif event.is_action_released("move_crouch"):
+		_uncrouch_audio_stream_player.stream = uncrouch_audios.pick_random()
+		_uncrouch_audio_stream_player.play()
+
+
+func _update_movement(delta: float) -> void:
 	var input_horizontal := Vector2.ZERO
 	var input_vertical := 0.0
 	var input_jump := false
@@ -314,46 +340,6 @@ func _physics_process(delta: float) -> void:
 
 	# Calculations happen above, side-effects happen below
 
-	var fire_bullet := (
-		Input.is_action_pressed("shoot")
-		and Util.get_ticks_sec() - _last_fired_at > 1.0 / fire_rate
-	)
-	if fire_bullet:
-		_last_fired_at = Util.get_ticks_sec()
-		var query := PhysicsRayQueryParameters3D.new()
-		query.from = _camera.global_position
-		query.to = _camera.global_position - _camera.global_basis.z * max_bullet_range
-		query.exclude = [get_rid()]
-		var collision := get_world_3d().direct_space_state.intersect_ray(query)
-
-		var bullet_end: Vector3
-		if collision:
-			bullet_end = collision.position
-		else:
-			bullet_end = query.to
-
-		var tracer: Tracer = tracer_scene.instantiate()
-		tracer.start = (
-			_bullet_start.global_position
-			+ new_velocity * delta
-			- _camera.global_basis.z * bullet_start_margin
-		)
-		tracer.end = bullet_end
-		get_parent().add_child(tracer)
-
-		if collision:
-			var impact: GPUParticles3D = bullet_impact_scene.instantiate()
-			impact.position = collision.position
-			impact.one_shot = true
-			impact.emitting = true
-			get_parent().add_child(impact)
-
-			if collision.collider is Enemy:
-				var enemy: Enemy = collision.collider
-				enemy.damage(1.0)
-	_smoke.emitting = Util.get_ticks_sec() - _last_fired_at < smoke_lifetime
-	_update_muzzle_flash()
-
 	if quake_camera_tilt_enabled:
 		var target := input_horizontal.x
 		var direction := signf(target - _quake_camera_tilt_ratio)
@@ -395,27 +381,6 @@ func _physics_process(delta: float) -> void:
 	_last_is_submerged = is_submerged
 	_last_is_on_floor = is_on_floor()
 	move_and_slide()
-
-
-func _input(event: InputEvent) -> void:
-	if not Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
-		return
-	if event is InputEventMouseMotion:
-		var e: InputEventMouseMotion = event
-		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
-		var i := -1.0 if global.invert_mouse else 1.0
-		rotation.y -= e.relative.x * s
-		_head.rotation.x = clamp(
-			_head.rotation.x - e.relative.y * s * i,
-			-vertical_angle_limit,
-			vertical_angle_limit
-		)
-	elif event.is_action_pressed("move_crouch"):
-		_crouch_audio_stream_player.stream = crouch_audios.pick_random()
-		_crouch_audio_stream_player.play()
-	elif event.is_action_released("move_crouch"):
-		_uncrouch_audio_stream_player.stream = uncrouch_audios.pick_random()
-		_uncrouch_audio_stream_player.play()
 
 
 func _get_next_capsule_height(is_crouching: bool, delta: float) -> float:
@@ -615,6 +580,48 @@ func _get_next_velocity(
 	if is_jumping:
 		vel.y = jump_height
 	return vel
+
+
+func _update_shooting(delta: float) -> void:
+	var fire_bullet := (
+		Input.is_action_pressed("shoot")
+		and Util.get_ticks_sec() - _last_fired_at > 1.0 / fire_rate
+	)
+	if fire_bullet:
+		_last_fired_at = Util.get_ticks_sec()
+		var query := PhysicsRayQueryParameters3D.new()
+		query.from = _camera.global_position
+		query.to = _camera.global_position - _camera.global_basis.z * max_bullet_range
+		query.exclude = [get_rid()]
+		var collision := get_world_3d().direct_space_state.intersect_ray(query)
+
+		var bullet_end: Vector3
+		if collision:
+			bullet_end = collision.position
+		else:
+			bullet_end = query.to
+
+		var tracer: Tracer = tracer_scene.instantiate()
+		tracer.start = (
+			_bullet_start.global_position
+			+ velocity * delta
+			- _camera.global_basis.z * bullet_start_margin
+		)
+		tracer.end = bullet_end
+		get_parent().add_child(tracer)
+
+		if collision:
+			var impact: GPUParticles3D = bullet_impact_scene.instantiate()
+			impact.position = collision.position
+			impact.one_shot = true
+			impact.emitting = true
+			get_parent().add_child(impact)
+
+			if collision.collider is Enemy:
+				var enemy: Enemy = collision.collider
+				enemy.damage(1.0)
+	_smoke.emitting = Util.get_ticks_sec() - _last_fired_at < smoke_lifetime
+	_update_muzzle_flash()
 
 
 func _update_muzzle_flash() -> void:

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://kinematic_fps_controller/kinematic_fps_controller.gd" id="2_8r0nc"]
 [ext_resource type="PackedScene" uid="uid://7nghfugqxiqf" path="res://common/metal_impact.tscn" id="2_86agt"]
 [ext_resource type="Environment" uid="uid://b3cn01u84faiy" path="res://common/underwater_environment.tres" id="2_owsda"]
-[ext_resource type="PackedScene" uid="uid://dw141fvvxpwhh" path="res://common/goo_impact.tscn" id="2_yniga"]
+[ext_resource type="PackedScene" uid="uid://dw141fvvxpwhh" path="res://common/big_black_goo_impact.tscn" id="2_yniga"]
 [ext_resource type="PackedScene" uid="uid://dvepobheadtv4" path="res://common/tracer.tscn" id="3_83nad"]
 [ext_resource type="PhysicsMaterial" path="res://kinematic_fps_controller/physics/grass.tres" id="4_ulqss"]
 [ext_resource type="PhysicsMaterial" uid="uid://bklf2cx3fydt3" path="res://kinematic_fps_controller/physics/stone.tres" id="5_a0l7u"]

@@ -59,6 +59,7 @@ transform = Transform3D(1.77989, 0, 0, 0, 1.77989, 0, 0, 0, 1.77989, 0, 0, 0)
 amount = 3
 explosiveness = 0.9
 randomness = 0.9
+fixed_fps = 60
 process_material = SubResource("ParticleProcessMaterial_mubbi")
 draw_pass_1 = SubResource("QuadMesh_qxt32")
 script = ExtResource("2_d5bno")

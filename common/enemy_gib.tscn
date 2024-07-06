@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://c77c7q0xw5krm"]
 
-[ext_resource type="Material" uid="uid://c4mjyxe3mtr77" path="res://common/enemy_goo.tres" id="1_mmltt"]
+[ext_resource type="Material" uid="uid://c4mjyxe3mtr77" path="res://common/black_goo.tres" id="1_mmltt"]
 
 [sub_resource type="SphereMesh" id="SphereMesh_w6qoy"]
 material = ExtResource("1_mmltt")

@@ -1,8 +1,10 @@
-[gd_scene load_steps=10 format=3 uid="uid://dvfhbivhdrs8c"]
+[gd_scene load_steps=11 format=3 uid="uid://dvfhbivhdrs8c"]
 
 [ext_resource type="Script" path="res://common/enemy.gd" id="1_jxcny"]
+[ext_resource type="PackedScene" uid="uid://67byoph2m5is" path="res://common/black_goo_explosion.tscn" id="2_315ry"]
 [ext_resource type="Shader" path="res://common/enemy.gdshader" id="2_kwcji"]
-[ext_resource type="Material" uid="uid://c4mjyxe3mtr77" path="res://common/enemy_goo.tres" id="2_uq58v"]
+[ext_resource type="Material" uid="uid://c4mjyxe3mtr77" path="res://common/black_goo.tres" id="2_uq58v"]
+[ext_resource type="PackedScene" uid="uid://bk1c08htsx72u" path="res://common/eye_explosion.tscn" id="3_nmfjf"]
 [ext_resource type="PackedScene" uid="uid://b1ywhlj58lxwh" path="res://common/eye.blend" id="4_amlj6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hbx1n"]
@@ -14,15 +16,12 @@ render_priority = 0
 shader = ExtResource("2_kwcji")
 shader_parameter/time = 0.0
 shader_parameter/health = 1.0
+shader_parameter/scale = 2.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_ana4j"]
+resource_local_to_scene = true
 material = SubResource("ShaderMaterial_b7vc0")
 size = Vector2(1, 2.5)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_2cenm"]
-material = ExtResource("2_uq58v")
-radius = 0.3
-height = 1.8
 
 [sub_resource type="TorusMesh" id="TorusMesh_r0bs4"]
 material = ExtResource("2_uq58v")
@@ -31,6 +30,8 @@ ring_segments = 16
 
 [node name="Enemy" type="CharacterBody3D"]
 script = ExtResource("1_jxcny")
+black_goo_explosion_scene = ExtResource("2_315ry")
+eye_explosion_scene = ExtResource("3_nmfjf")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
 unique_name_in_owner = true
@@ -45,11 +46,6 @@ shape = SubResource("CapsuleShape3D_hbx1n")
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 1, 2.08165e-12)
 mesh = SubResource("QuadMesh_ana4j")
-
-[node name="OldBody" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-visible = false
-mesh = SubResource("CapsuleMesh_2cenm")
 
 [node name="Eye" type="Node3D" parent="."]
 unique_name_in_owner = true

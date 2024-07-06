@@ -3,6 +3,8 @@ class_name Enemy
 
 enum State { IDLE, ATTACK, RETREAT }
 
+@export var black_goo_explosion_scene: PackedScene
+@export var eye_explosion_scene: PackedScene
 var min_retreat_duration := 5.0
 var movement_speed := 3.0
 var retreat_damage_threshold := 10.0
@@ -12,6 +14,8 @@ var _state := State.IDLE
 var _damage_taken_since_last_state_transition := 0.0
 var _last_state_transition_at := -1000.0
 var _animation_time := 0.0
+var _alive := true
+var _shrinking := false
 @onready var _health := max_health
 @onready var _navigation_agent: NavigationAgent3D = %NavigationAgent3D
 @onready var _eye: Node3D = %Eye
@@ -37,7 +41,7 @@ func _physics_process(delta: float) -> void:
 	_update_rotation(delta)
 	_update_eye()
 	_update_eye_cover()
-	_update_body()
+	_update_body(delta)
 	_health += 2.0 * delta
 	_health = minf(_health, max_health)
 
@@ -47,7 +51,25 @@ func damage(amount: float) -> void:
 	_damage_taken_since_last_state_transition += amount
 	if _health < 0.0:
 		_health = 0.0
-	if _damage_taken_since_last_state_transition > retreat_damage_threshold:
+		if _alive:
+			_alive = false
+			_eye.visible = false
+			var eye_explosion: CustomParticlesCluster = eye_explosion_scene.instantiate()
+			eye_explosion.position = _eye.global_position
+			eye_explosion.one_shot = true
+			eye_explosion.emitting = true
+			get_parent().add_child(eye_explosion)
+			await get_tree().create_timer(0.7).timeout
+			_shrinking = true
+			await get_tree().create_timer(0.7).timeout
+			_body.visible = false
+			var body_explosion: CustomParticlesCluster = black_goo_explosion_scene.instantiate()
+			body_explosion.position = _eye.global_position
+			body_explosion.one_shot = true
+			body_explosion.emitting = true
+			get_parent().add_child(body_explosion)
+			await get_tree().create_timer(body_explosion.get_max_lifetime()).timeout
+	if _alive and _damage_taken_since_last_state_transition > retreat_damage_threshold:
 		if _state == State.ATTACK:
 			if _get_best_retreat_location():
 				_transition_to_retreat_state()
@@ -63,6 +85,9 @@ func damage(amount: float) -> void:
 
 
 func _update_navigation(delta: float) -> void:
+	if not _alive:
+		return
+
 	var query := PhysicsRayQueryParameters3D.new()
 	query.from = _eye.global_position
 	query.to = global.get_player().global_position
@@ -150,11 +175,15 @@ func _update_eye_cover() -> void:
 	_eye_cover.rotation.y = 0.1 * TAU * sin(3.0 * _animation_time + 1.0)
 
 
-func _update_body() -> void:
+func _update_body(delta: float) -> void:
 	var mesh: QuadMesh = _body.mesh
 	var material: ShaderMaterial = mesh.material
 	material.set_shader_parameter("health", _health / max_health)
 	material.set_shader_parameter("time", _animation_time)
+	if _shrinking:
+		mesh.size -= 2.0 * mesh.size * delta
+		if mesh.size.x < 0.0 or mesh.size.y < 0.0:
+			mesh.size = Vector2.ZERO
 
 
 func _get_best_retreat_location() -> Node3D:

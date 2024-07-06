@@ -3,6 +3,7 @@ render_mode unshaded;
 
 uniform float time = 0.0;
 uniform float health : hint_range(0.0, 1.0) = 1.0;
+uniform float scale = 1.0;
 
 void vertex() {
 	MODELVIEW_MATRIX = VIEW_MATRIX * mat4(

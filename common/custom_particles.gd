@@ -2,6 +2,7 @@ class_name CustomParticles
 extends GPUParticles3D
 
 @export var free_after_lifetime := false
+@export var scale_amount_ratio_to_zero := false
 
 
 func _init() -> void:
@@ -13,6 +14,10 @@ func _ready() -> void:
 	if free_after_lifetime:
 		await get_tree().create_timer(lifetime).timeout
 		queue_free()
+
+
+func _process(delta: float) -> void:
+	amount_ratio -= delta / lifetime
 
 
 func _update() -> void:

@@ -11,10 +11,13 @@ var max_health := 100.0
 var _state := State.IDLE
 var _damage_taken_since_last_state_transition := 0.0
 var _last_state_transition_at := -1000.0
+var _animation_time := 0.0
 @onready var _health := max_health
 @onready var _navigation_agent: NavigationAgent3D = %NavigationAgent3D
 @onready var _eye: Node3D = %Eye
+@onready var _eye_cover: Node3D = %EyeCover
 @onready var _body: MeshInstance3D = %Body
+@onready var _initial_eye_position := _eye.position
 
 
 func _ready() -> void:
@@ -29,10 +32,14 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_animation_time += remap(_health, 0.0, max_health, 8.0, 0.5) * delta
 	_update_navigation(delta)
 	_update_rotation(delta)
 	_update_eye()
-	_update_body(delta)
+	_update_eye_cover()
+	_update_body()
+	_health += 2.0 * delta
+	_health = minf(_health, max_health)
 
 
 func damage(amount: float) -> void:
@@ -103,6 +110,7 @@ func _update_navigation(delta: float) -> void:
 		velocity = lerp(
 			velocity, dir * movement_speed, delta * acceleration_speed
 		)
+		scale = Vector3.ONE
 		move_and_slide()
 	for i in get_slide_collision_count():
 		if (
@@ -129,17 +137,24 @@ func _update_eye() -> void:
 	_eye.basis = Basis.looking_at(
 		global_basis.transposed() * dir, Vector3.UP, true
 	)
+	_eye.position.x = _initial_eye_position.x - 0.09 * sin(4.0 * _animation_time)
+	_eye.position.y = _initial_eye_position.y - 0.09 * sin(5.0 * _animation_time + 1.0)
+	_eye.position.z = _initial_eye_position.z - 0.09 * sin(6.0 * _animation_time + 2.0)
 
 
-func _update_body(delta: float) -> void:
+func _update_eye_cover() -> void:
+	_eye_cover.position.x = 0.05 * sin(4.0 * _animation_time)
+	_eye_cover.position.y = 0.05 * sin(5.0 * _animation_time + 1.0)
+	_eye_cover.position.z = 0.05 * sin(6.0 * _animation_time + 2.0)
+	_eye_cover.rotation.x = TAU / 4.0 + 0.1 * TAU * sin(2.0 * _animation_time)
+	_eye_cover.rotation.y = 0.1 * TAU * sin(3.0 * _animation_time + 1.0)
+
+
+func _update_body() -> void:
 	var mesh: QuadMesh = _body.mesh
 	var material: ShaderMaterial = mesh.material
 	material.set_shader_parameter("health", _health / max_health)
-	material.set_shader_parameter(
-		"time",
-		material.get_shader_parameter("time")
-			+ remap(_health, 0.0, max_health, 8.0, 0.5) * delta
-	)
+	material.set_shader_parameter("time", _animation_time)
 
 
 func _get_best_retreat_location() -> Node3D:

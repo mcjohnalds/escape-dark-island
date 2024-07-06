@@ -1,8 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://dvfhbivhdrs8c"]
+[gd_scene load_steps=10 format=3 uid="uid://dvfhbivhdrs8c"]
 
 [ext_resource type="Script" path="res://common/enemy.gd" id="1_jxcny"]
 [ext_resource type="Shader" path="res://common/enemy.gdshader" id="2_kwcji"]
-[ext_resource type="Material" uid="uid://c4mjyxe3mtr77" path="res://common/enemy_black.tres" id="2_uq58v"]
+[ext_resource type="Material" uid="uid://c4mjyxe3mtr77" path="res://common/enemy_goo.tres" id="2_uq58v"]
 [ext_resource type="PackedScene" uid="uid://b1ywhlj58lxwh" path="res://common/eye.blend" id="4_amlj6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hbx1n"]
@@ -23,6 +23,11 @@ size = Vector2(1, 2.5)
 material = ExtResource("2_uq58v")
 radius = 0.3
 height = 1.8
+
+[sub_resource type="TorusMesh" id="TorusMesh_r0bs4"]
+material = ExtResource("2_uq58v")
+rings = 32
+ring_segments = 16
 
 [node name="Enemy" type="CharacterBody3D"]
 script = ExtResource("1_jxcny")
@@ -49,6 +54,11 @@ mesh = SubResource("CapsuleMesh_2cenm")
 [node name="Eye" type="Node3D" parent="."]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 1, 2.08165e-12)
+
+[node name="EyeCover" type="MeshInstance3D" parent="Eye"]
+unique_name_in_owner = true
+transform = Transform3D(0.270087, 0, 0, 0, -1.18059e-08, -0.270087, 0, 0.270087, -1.18059e-08, 0, 0, 0)
+mesh = SubResource("TorusMesh_r0bs4")
 
 [node name="Mesh" parent="Eye" instance=ExtResource("4_amlj6")]
 transform = Transform3D(0.303984, 0, 0, 0, 0.303984, 0, 0, 0, 0.303984, 0, 0, 0)

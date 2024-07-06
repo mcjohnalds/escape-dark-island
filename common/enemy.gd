@@ -29,6 +29,32 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_update_navigation(delta)
+	_update_rotation(delta)
+	_update_eye()
+
+
+func damage(amount: float) -> void:
+	_health -= amount
+	_damage_taken_since_last_state_transition += amount
+	if _health < 0.0:
+		_health = 0.0
+	if _damage_taken_since_last_state_transition > retreat_damage_threshold:
+		if _state == State.ATTACK:
+			if _get_best_retreat_location():
+				_transition_to_retreat_state()
+			else:
+				_transition_to_attack_state()
+		if _state == State.RETREAT:
+			var d := global_position.distance_to(
+				global.get_player().global_position
+			)
+			var close := d < _navigation_agent.target_desired_distance
+			if close:
+				_transition_to_attack_state()
+
+
+func _update_navigation(delta: float) -> void:
 	var query := PhysicsRayQueryParameters3D.new()
 	query.from = _eye.global_position
 	query.to = global.get_player().global_position
@@ -83,35 +109,16 @@ func _physics_process(delta: float) -> void:
 			and _state != State.ATTACK
 		):
 			_transition_to_attack_state()
-	var v: Vector3 = global.get_player().global_position - global_position
-	rotation.y = lerp_angle(
-		rotation.y, atan2(v.x, v.z), delta * acceleration_speed
-	)
-	_update_eye()
-
 	get_tree().get_first_node_in_group("debug_sphere").global_position = (
 		_navigation_agent.target_position
 	)
 
 
-func damage(amount: float) -> void:
-	_health -= amount
-	_damage_taken_since_last_state_transition += amount
-	if _health < 0.0:
-		_health = 0.0
-	if _damage_taken_since_last_state_transition > retreat_damage_threshold:
-		if _state == State.ATTACK:
-			if _get_best_retreat_location():
-				_transition_to_retreat_state()
-			else:
-				_transition_to_attack_state()
-		if _state == State.RETREAT:
-			var d := global_position.distance_to(
-				global.get_player().global_position
-			)
-			var close := d < _navigation_agent.target_desired_distance
-			if close:
-				_transition_to_attack_state()
+func _update_rotation(delta: float) -> void:
+	var v: Vector3 = global.get_player().global_position - global_position
+	rotation.y = lerp_angle(
+		rotation.y, atan2(v.x, v.z), delta * acceleration_speed
+	)
 
 
 func _update_eye() -> void:

@@ -9,8 +9,6 @@
 [ext_resource type="Script" path="res://common/blood_overlay.gd" id="6_h3boe"]
 [ext_resource type="PackedScene" uid="uid://ff3oqsj7dv02" path="res://ui/custom_label.tscn" id="6_pjl4h"]
 
-[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bqx4t"]
-
 [sub_resource type="Gradient" id="Gradient_tuorp"]
 colors = PackedColorArray(0, 0, 0, 0.043, 1, 1, 1, 0.059)
 
@@ -27,28 +25,14 @@ noise = SubResource("FastNoiseLite_iaim2")
 shader = ExtResource("3_wn4tp")
 shader_parameter/dirt_texture = SubResource("NoiseTexture2D_43mgo")
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bqx4t"]
+
 [node name="Game" type="Node3D"]
 script = ExtResource("1_nixut")
 
 [node name="Container" type="Node3D" parent="."]
 
 [node name="Level" parent="Container" instance=ExtResource("2_m3jn1")]
-
-[node name="Crosshair" type="TextureRect" parent="."]
-material = SubResource("CanvasItemMaterial_bqx4t")
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -11.0
-offset_top = -11.0
-offset_right = 11.0
-offset_bottom = 11.0
-grow_horizontal = 2
-grow_vertical = 2
-texture = ExtResource("3_gck2x")
-expand_mode = 1
 
 [node name="NightVisionShader" type="ColorRect" parent="."]
 material = SubResource("ShaderMaterial_hmm4h")
@@ -93,6 +77,22 @@ theme_override_constants/margin_bottom = 10
 unique_name_in_owner = true
 layout_mode = 2
 text = "Health 100%"
+
+[node name="Crosshair" type="TextureRect" parent="."]
+material = SubResource("CanvasItemMaterial_bqx4t")
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_gck2x")
+expand_mode = 1
 
 [node name="DeathOverlay" type="ColorRect" parent="." groups=["death_overlay"]]
 modulate = Color(1, 1, 1, 0)

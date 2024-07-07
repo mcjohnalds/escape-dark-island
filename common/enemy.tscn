@@ -18,6 +18,8 @@ shader = ExtResource("2_kwcji")
 shader_parameter/time = 0.0
 shader_parameter/health = 1.0
 shader_parameter/scale = 2.0
+shader_parameter/bullet_hole_position = Vector2(0, 0)
+shader_parameter/bullet_hit_at = -1000.0
 
 [sub_resource type="QuadMesh" id="QuadMesh_ana4j"]
 resource_local_to_scene = true

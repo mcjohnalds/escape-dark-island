@@ -1,11 +1,12 @@
 Todo:
 
-- Enemy can attack
+- Weapon kick
 - Enemy movement isn't so stiff
 - Grenades
 - Ammo
-- Health
+- Bandages
 - Disable enemy collider on death
+- Loot ammo, grenades, bandages
 - Setting for camera shake
 
 - Jumping doesn't make the view snap in a weird way

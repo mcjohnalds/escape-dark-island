@@ -1,11 +1,15 @@
 Todo:
 
 - Grenades
+  - Deal damage
+  - More friction
+  - Better throw curve
 - Ammo
 - Bandages
 - Disable enemy collider on death
 - Loot ammo, grenades, bandages
-- Setting for camera shake
+- More buildings
+- Furinture colliders
 - Out of sprint animation indicator
 
 - Jumping doesn't make the view snap in a weird way

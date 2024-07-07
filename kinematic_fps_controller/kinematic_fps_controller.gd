@@ -1,6 +1,9 @@
 extends CharacterBody3D
 class_name KinematicFpsController
 
+enum WeaponType { GUN, GRENADE }
+
+@export var thrown_grenade_scene: PackedScene
 @export var fire_rate := 11.0
 @export var max_bullet_range := 1000.0
 @export var goo_bullet_impact_scene: PackedScene
@@ -12,24 +15,28 @@ class_name KinematicFpsController
 @export var smoke_lifetime := 0.3
 @export var back_speed := 0.6
 @export var max_health := 100.0
-@export var gun_linear_pid_kp := 1.0
-@export var gun_linear_pid_kd := 1.0
-@export var gun_angular_pid_kp := 1.0
-@export var gun_angular_pid_kd := 1.0
+@export var weapon_linear_pid_kp := 1.0
+@export var weapon_linear_pid_kd := 1.0
+@export var weapon_angular_pid_kp := 1.0
+@export var weapon_angular_pid_kd := 1.0
 @export var sprint_seconds := 3.0
 @export var sprint_regen_time := 6.0
 var sprint_energy := 1.0
 var _last_sprint_cooldown_at := -1000.0
 var _camera_kick_offset := Vector3.ZERO
-var _gun_linear_velocity := Vector3.ZERO
-var _gun_angular_velocity := Vector3.ZERO
+var _weapon_linear_velocity := Vector3.ZERO
+var _weapon_angular_velocity := Vector3.ZERO
 var _last_camera_position := Vector3.ZERO
+var _weapon_type: WeaponType = WeaponType.GUN
+var _grenade_throw_cooldown_remaining := 0.0
 @onready var _health := max_health
+@onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
-@onready var _target_gun_position: Vector3 = _gun.position
-@onready var _target_gun_rotation: Vector3 = _gun.rotation
-@onready var _gun_last_position := _target_gun_position
-@onready var _gun_last_rotation := _target_gun_rotation
+@onready var _grenade: Node3D = %Grenade
+@onready var _target_weapon_position: Vector3 = _weapon.position
+@onready var _target_weapon_rotation: Vector3 = _weapon.rotation
+@onready var _weapon_last_position := _target_weapon_position
+@onready var _weapon_last_rotation := _target_weapon_rotation
 
 @export_group("Audio")
 
@@ -161,7 +168,7 @@ var _last_camera_position := Vector3.ZERO
 
 @export var underwater_env: Environment
 
-var _last_fired_at := -1000.0
+var _gun_last_fired_at := -1000.0
 var _step_cycle := 0.0
 var _is_flying := false
 var _last_is_on_water := false
@@ -209,19 +216,20 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_update_movement(delta)
-	_update_shooting(delta)
-	_update_gun_linear_velocity(delta)
-	_update_gun_angular_velocity(delta)
+	_update_gun(delta)
+	_update_grenade(delta)
+	_update_weapon_linear_velocity(delta)
+	_update_weapon_angular_velocity(delta)
 	_camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
 	var camera_linear_velocity := (
 		_last_camera_position - _camera.position
 	) / delta
-	_gun_linear_velocity += Vector3(
+	_weapon_linear_velocity += Vector3(
 		0.1 * camera_linear_velocity.x,
 		0.1 * camera_linear_velocity.y,
 		0.0 * camera_linear_velocity.length(),
 	)
-	_gun_angular_velocity += Vector3(
+	_weapon_angular_velocity += Vector3(
 		0.3 * camera_linear_velocity.y,
 		0.9 * camera_linear_velocity.x,
 		0.0
@@ -252,12 +260,20 @@ func _input(event: InputEvent) -> void:
 			-vertical_angle_limit,
 			vertical_angle_limit
 		)
-	elif event.is_action_pressed("move_crouch"):
+	if event.is_action_pressed("move_crouch"):
 		_crouch_audio_stream_player.stream = crouch_audios.pick_random()
 		_crouch_audio_stream_player.play()
-	elif event.is_action_released("move_crouch"):
+	if event.is_action_released("move_crouch"):
 		_uncrouch_audio_stream_player.stream = uncrouch_audios.pick_random()
 		_uncrouch_audio_stream_player.play()
+	if event.is_action_pressed("select_weapon_1"):
+		_weapon_type = WeaponType.GUN
+		_gun.visible = true
+		_grenade.visible = false
+	if event.is_action_pressed("select_weapon_2"):
+		_weapon_type = WeaponType.GRENADE
+		_gun.visible = false
+		_grenade.visible = true
 
 
 func _update_movement(delta: float) -> void:
@@ -639,20 +655,20 @@ func _get_next_velocity(
 	return vel
 
 
-func _update_shooting(delta: float) -> void:
-	if _health == 0.0:
+func _update_gun(delta: float) -> void:
+	if _health == 0.0 or _weapon_type != WeaponType.GUN:
 		return
 	var fire_bullet := (
 		Input.is_action_pressed("shoot")
-		and Util.get_ticks_sec() - _last_fired_at > 1.0 / fire_rate
+		and Util.get_ticks_sec() - _gun_last_fired_at > 1.0 / fire_rate
 	)
 	if fire_bullet:
-		_last_fired_at = Util.get_ticks_sec()
+		_gun_last_fired_at = Util.get_ticks_sec()
 		var query := PhysicsRayQueryParameters3D.new()
 		query.from = _camera.global_position
-		# var q := _camera.global_basis.get_rotation_quaternion() * Quaternion.from_euler((_target_gun_rotation - _gun.rotation) * Vector3(2.0, 10.0, 0.0)).normalized()
+		# var q := _camera.global_basis.get_rotation_quaternion() * Quaternion.from_euler((_target_weapon_rotation - _weapon.rotation) * Vector3(2.0, 10.0, 0.0)).normalized()
 		# query.to = _camera.global_position + q * Vector3.FORWARD * max_bullet_range
-		var dir := -_gun.global_basis.z
+		var dir := -_weapon.global_basis.z
 		query.to = _camera.global_position + dir * max_bullet_range
 		query.exclude = [get_rid()]
 		var collision := get_world_3d().direct_space_state.intersect_ray(query)
@@ -671,12 +687,12 @@ func _update_shooting(delta: float) -> void:
 		)
 		tracer.end = bullet_end
 		get_parent().add_child(tracer)
-		_gun_linear_velocity += Vector3(
+		_weapon_linear_velocity += Vector3(
 			randf_range(-0.1, 0.1),
 			randf_range(0.5, 0.6),
 			randf_range(0.8, 0.9)
 		)
-		_gun_angular_velocity += Vector3(
+		_weapon_angular_velocity += Vector3(
 			randf_range(-0.1, 3.0),
 			randf_range(-3.0, 3.0),
 			randf_range(-0.9, 0.9)
@@ -696,35 +712,49 @@ func _update_shooting(delta: float) -> void:
 			if collision.collider is Enemy:
 				var enemy: Enemy = collision.collider
 				enemy.damage(1.0)
-	_smoke.emitting = Util.get_ticks_sec() - _last_fired_at < smoke_lifetime
+	_smoke.emitting = Util.get_ticks_sec() - _gun_last_fired_at < smoke_lifetime
 	_update_muzzle_flash()
 
 
-func _update_gun_linear_velocity(delta: float) -> void:
-	var error := _target_gun_position - _gun.position
-	var error_delta := (_gun_last_position - _gun.position) / delta
-	var accel := gun_linear_pid_kp * error + gun_linear_pid_kd * error_delta
-	_gun_linear_velocity += accel * delta
-	_gun_linear_velocity = _gun_linear_velocity.limit_length(0.1)
-	_gun_last_position = _gun.position
-	_gun.position += _gun_linear_velocity * delta
+func _update_grenade(delta: float) -> void:
+	if _health == 0.0 or _weapon_type != WeaponType.GRENADE:
+		return
+	if _grenade_throw_cooldown_remaining == 0.0 and Input.is_action_pressed("shoot"):
+		_grenade_throw_cooldown_remaining = 2.0
+		var grenade: ThrownGrenade = thrown_grenade_scene.instantiate()
+		grenade.position = _grenade.global_position
+		grenade.linear_velocity = -_camera.global_basis.z * 20.0
+		global.get_level().add_child(grenade)
+	if _grenade_throw_cooldown_remaining > 0.0:
+		_grenade_throw_cooldown_remaining -= delta
+	_grenade_throw_cooldown_remaining = maxf(0.0, _grenade_throw_cooldown_remaining)
 
 
-func _update_gun_angular_velocity(delta: float) -> void:
-	var error := _target_gun_rotation - _gun.rotation
-	var error_delta := (_gun_last_rotation - _gun.rotation) / delta
-	var accel := gun_angular_pid_kp * error + gun_angular_pid_kd * error_delta
-	_gun_angular_velocity += accel * delta
-	_gun_angular_velocity = _gun_angular_velocity.limit_length(1.0)
-	_gun_last_rotation = _gun.rotation
-	_gun.rotation += _gun_angular_velocity * delta
+func _update_weapon_linear_velocity(delta: float) -> void:
+	var error := _target_weapon_position - _weapon.position
+	var error_delta := (_weapon_last_position - _weapon.position) / delta
+	var accel := weapon_linear_pid_kp * error + weapon_linear_pid_kd * error_delta
+	_weapon_linear_velocity += accel * delta
+	_weapon_linear_velocity = _weapon_linear_velocity.limit_length(0.1)
+	_weapon_last_position = _weapon.position
+	_weapon.position += _weapon_linear_velocity * delta
+
+
+func _update_weapon_angular_velocity(delta: float) -> void:
+	var error := _target_weapon_rotation - _weapon.rotation
+	var error_delta := (_weapon_last_rotation - _weapon.rotation) / delta
+	var accel := weapon_angular_pid_kp * error + weapon_angular_pid_kd * error_delta
+	_weapon_angular_velocity += accel * delta
+	_weapon_angular_velocity = _weapon_angular_velocity.limit_length(1.0)
+	_weapon_last_rotation = _weapon.rotation
+	_weapon.rotation += _weapon_angular_velocity * delta
 
 
 func _update_muzzle_flash() -> void:
 	for muzzle_flash in _muzzle_flashes:
 		var material: StandardMaterial3D = muzzle_flash.material_override
 		var t := Util.get_ticks_sec()
-		var d := t - _last_fired_at
+		var d := t - _gun_last_fired_at
 		material.albedo_color.a = (
 			muzzle_flash_alpha_curve.sample_baked(d / muzzle_flash_lifetime)
 		)
@@ -739,8 +769,8 @@ func damage(amount: float) -> void:
 	_kick_camera()
 	if _health <= 0.0:
 		_health = 0.0
-		_target_gun_position = _target_gun_position + Vector3.DOWN * 0.1
-		_target_gun_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
+		_target_weapon_position = _target_weapon_position + Vector3.DOWN * 0.1
+		_target_weapon_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
 		_fade_in_death_overlay()
 
 

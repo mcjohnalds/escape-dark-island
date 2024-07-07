@@ -1,7 +1,8 @@
-[gd_scene load_steps=55 format=3 uid="uid://2oxdgu03lnbk"]
+[gd_scene load_steps=57 format=3 uid="uid://2oxdgu03lnbk"]
 
 [ext_resource type="Script" path="res://kinematic_fps_controller/kinematic_fps_controller.gd" id="2_8r0nc"]
 [ext_resource type="PackedScene" uid="uid://7nghfugqxiqf" path="res://common/metal_impact.tscn" id="2_86agt"]
+[ext_resource type="PackedScene" uid="uid://cypfq1s75umj6" path="res://common/thrown_grenade.tscn" id="2_anmft"]
 [ext_resource type="Environment" uid="uid://b3cn01u84faiy" path="res://common/underwater_environment.tres" id="2_owsda"]
 [ext_resource type="PackedScene" uid="uid://dw141fvvxpwhh" path="res://common/big_black_goo_impact.tscn" id="2_yniga"]
 [ext_resource type="PackedScene" uid="uid://dvepobheadtv4" path="res://common/tracer.tscn" id="3_83nad"]
@@ -30,6 +31,7 @@
 [ext_resource type="AudioStream" uid="uid://c7pj78vafhema" path="res://kinematic_fps_controller/audios/uncrouch_2.ogg" id="24_knso1"]
 [ext_resource type="AudioStream" uid="uid://begnjae7wbr3m" path="res://kinematic_fps_controller/audios/uncrouch_3.ogg" id="25_0xsk3"]
 [ext_resource type="PackedScene" uid="uid://cf762veqbirs4" path="res://common/assault_rifle.glb" id="28_e1ex1"]
+[ext_resource type="PackedScene" uid="uid://cfh6b484xv5gf" path="res://common/grenade.blend" id="30_r6pvv"]
 [ext_resource type="Texture2D" uid="uid://nsrqdm2vli8a" path="res://addons/kenney_particle_pack/muzzle_02.png" id="31_q70iq"]
 [ext_resource type="Texture2D" uid="uid://8sg30406ftag" path="res://addons/kenney_particle_pack/magic_05.png" id="32_twhfu"]
 [ext_resource type="Texture2D" uid="uid://g6lgbd2idtjd" path="res://addons/kenney_particle_pack/smoke_08.png" id="33_7j817"]
@@ -165,15 +167,16 @@ material = SubResource("StandardMaterial3D_k3mb8")
 [node name="KinematicFpsController" type="CharacterBody3D" groups=["player"]]
 floor_snap_length = 0.5
 script = ExtResource("2_8r0nc")
+thrown_grenade_scene = ExtResource("2_anmft")
 fire_rate = 10.0
 goo_bullet_impact_scene = ExtResource("2_yniga")
 default_bullet_impact_scene = ExtResource("2_86agt")
 tracer_scene = ExtResource("3_83nad")
 muzzle_flash_alpha_curve = SubResource("Curve_uibhf")
-gun_linear_pid_kp = 500.0
-gun_linear_pid_kd = 50.0
-gun_angular_pid_kp = 300.0
-gun_angular_pid_kd = 20.0
+weapon_linear_pid_kp = 500.0
+weapon_linear_pid_kd = 50.0
+weapon_angular_pid_kp = 300.0
+weapon_angular_pid_kd = 20.0
 material_audios = Array[ExtResource("10_3id2w")]([SubResource("Resource_ju83a"), SubResource("Resource_3rmwo"), SubResource("Resource_rfw5k"), SubResource("Resource_kvpuo")])
 water_material_audio = SubResource("Resource_kvpuo")
 crouch_audios = Array[AudioStream]([ExtResource("19_dvqy3"), ExtResource("20_0e40x"), ExtResource("21_8kmms"), ExtResource("22_rfhmk")])
@@ -201,36 +204,37 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.46, 2.08165e-1
 [node name="Camera3D" type="Camera3D" parent="Head"]
 fov = 80.0
 
-[node name="Gun" type="Node3D" parent="Head/Camera3D"]
+[node name="Weapon" type="Node3D" parent="Head/Camera3D"]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.303, -0.307, -0.334)
 
-[node name="Mesh" parent="Head/Camera3D/Gun" instance=ExtResource("28_e1ex1")]
+[node name="Gun" parent="Head/Camera3D/Weapon" instance=ExtResource("28_e1ex1")]
+unique_name_in_owner = true
 transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7.71288e-09, 0, 0, 0)
 
-[node name="BulletStart" type="Node3D" parent="Head/Camera3D/Gun"]
+[node name="BulletStart" type="Node3D" parent="Head/Camera3D/Weapon/Gun"]
 unique_name_in_owner = true
-transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7.71288e-09, 0, 0.108414, -0.634821)
+transform = Transform3D(1, 0, -3.31134e-15, 0, 1, 0, 3.9575e-15, 0, 1, 3.59774, 0.614418, 1.19209e-07)
 
-[node name="MuzzleFlash1" type="MeshInstance3D" parent="Head/Camera3D/Gun/BulletStart"]
+[node name="MuzzleFlash1" type="MeshInstance3D" parent="Head/Camera3D/Weapon/Gun/BulletStart"]
 unique_name_in_owner = true
 transform = Transform3D(5.68106e-07, 0, -5.94547, 0, 2.49424, 0, 4.33224, 0, 7.79654e-07, 2.77231, 0, 1.19209e-07)
 material_override = SubResource("StandardMaterial3D_f8tu5")
 mesh = SubResource("PlaneMesh_8kq7a")
 
-[node name="MuzzleFlash2" type="MeshInstance3D" parent="Head/Camera3D/Gun/BulletStart"]
+[node name="MuzzleFlash2" type="MeshInstance3D" parent="Head/Camera3D/Weapon/Gun/BulletStart"]
 unique_name_in_owner = true
 transform = Transform3D(3.78738e-07, 1.09027e-07, -5.94547, -4.33224, -1.09027e-07, -5.19769e-07, -1.89368e-07, 2.49424, 2.59885e-07, 2.77231, 0, 1.19209e-07)
 material_override = SubResource("StandardMaterial3D_f8tu5")
 mesh = SubResource("PlaneMesh_8kq7a")
 
-[node name="MuzzleFlash3" type="MeshInstance3D" parent="Head/Camera3D/Gun/BulletStart"]
+[node name="MuzzleFlash3" type="MeshInstance3D" parent="Head/Camera3D/Weapon/Gun/BulletStart"]
 unique_name_in_owner = true
 transform = Transform3D(-1.23799e-07, 2.83218, -1.23799e-07, 8.49728e-22, -1.23799e-07, -2.83218, -2.83218, -1.23799e-07, 1.29908e-15, 0.942238, 0, 0)
 material_override = SubResource("StandardMaterial3D_a6b2b")
 mesh = SubResource("PlaneMesh_h6ix3")
 
-[node name="Smoke" type="GPUParticles3D" parent="Head/Camera3D/Gun/BulletStart"]
+[node name="Smoke" type="GPUParticles3D" parent="Head/Camera3D/Weapon/Gun/BulletStart"]
 unique_name_in_owner = true
 transform = Transform3D(-3.57265e-08, 0, 0.817327, 0, 0.817327, 0, -0.817327, 0, -3.57265e-08, 0.402218, 0.0328035, 0)
 lifetime = 3.0
@@ -240,6 +244,11 @@ visibility_aabb = AABB(-1.62292, -1.09174, -1.68963, 3.18206, 4.79947, 3.20341)
 local_coords = true
 process_material = SubResource("ParticleProcessMaterial_6lf27")
 draw_pass_1 = SubResource("QuadMesh_cxfwg")
+
+[node name="Grenade" parent="Head/Camera3D/Weapon" instance=ExtResource("30_r6pvv")]
+unique_name_in_owner = true
+transform = Transform3D(0.998917, 0.00268531, 0.0464445, -0.00868368, 0.99155, 0.129438, -0.0457044, -0.129701, 0.990499, 0.076, 0.007, -0.042)
+visible = false
 
 [node name="HeadRayCast" type="RayCast3D" parent="."]
 target_position = Vector3(2.08165e-12, 0.85, 2.08165e-12)

@@ -86,7 +86,7 @@ resource_local_to_scene = true
 no_depth_test = true
 shading_mode = 0
 
-[node name="Level" type="NavigationRegion3D"]
+[node name="Level" type="NavigationRegion3D" groups=["level"]]
 navigation_mesh = SubResource("NavigationMesh_82lw1")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="."]

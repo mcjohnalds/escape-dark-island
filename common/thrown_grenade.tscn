@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://cypfq1s75umj6"]
+
+[ext_resource type="PackedScene" uid="uid://cfh6b484xv5gf" path="res://common/grenade.blend" id="1_23cep"]
+[ext_resource type="Script" path="res://common/thrown_grenade.gd" id="1_is0ls"]
+[ext_resource type="PackedScene" uid="uid://dce5r5pl11hfe" path="res://common/grenade_explosion.tscn" id="2_yffwa"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lgaem"]
+radius = 0.0552876
+height = 0.211633
+
+[node name="ThrownGrenade" type="RigidBody3D"]
+script = ExtResource("1_is0ls")
+explosion_scene = ExtResource("2_yffwa")
+
+[node name="Model" parent="." instance=ExtResource("1_23cep")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.106, 2.08165e-12)
+shape = SubResource("CapsuleShape3D_lgaem")

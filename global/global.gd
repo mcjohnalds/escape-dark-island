@@ -145,3 +145,6 @@ func get_blood_overlay() -> BloodOverlay:
 func get_death_overlay() -> ColorRect:
 	return get_tree().get_first_node_in_group("death_overlay")
 
+
+func get_level() -> Node3D:
+	return get_tree().get_first_node_in_group("level")

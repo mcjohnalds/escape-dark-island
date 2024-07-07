@@ -1,5 +1,14 @@
 Todo:
 
+- Enemy can attack
+- Enemy movement isn't so stiff
+- Grenades
+- Ammo
+- Health
+- Disable enemy collider on death
+- Setting for camera shake
+
+- Jumping doesn't make the view snap in a weird way
 - Barrel gets red hot
 - Bug: gun fire rate not good because bullet firing might not match up with
   frame rate

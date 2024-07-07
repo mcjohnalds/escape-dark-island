@@ -136,3 +136,8 @@ func play_hover_sound() -> void:
 
 func get_player() -> KinematicFpsController:
 	return get_tree().get_first_node_in_group("player")
+
+
+func get_blood_overlay() -> BloodOverlay:
+	return get_tree().get_first_node_in_group("blood_overlay")
+

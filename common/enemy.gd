@@ -6,7 +6,7 @@ enum State { IDLE, ATTACK, RETREAT }
 @export var black_goo_explosion_scene: PackedScene
 @export var eye_explosion_scene: PackedScene
 var min_retreat_duration := 5.0
-var movement_speed := 3.0
+var movement_speed := 5.0
 var retreat_damage_threshold := 10.0
 var acceleration_speed := 4.0
 var max_health := 100.0
@@ -16,13 +16,14 @@ var _last_state_transition_at := -1000.0
 var _animation_time := 0.0
 var _alive := true
 var _shrinking := false
+var _last_attack_at := -1000.0
 @onready var _health := max_health
 @onready var _navigation_agent: NavigationAgent3D = %NavigationAgent3D
 @onready var _eye: Node3D = %Eye
 @onready var _eye_cover: Node3D = %EyeCover
 @onready var _body: MeshInstance3D = %Body
 @onready var _initial_eye_position := _eye.position
-
+@onready var _initial_body_position := _body.position
 
 func _ready() -> void:
 	# Wait for the NavigationServer to sync
@@ -44,6 +45,7 @@ func _physics_process(delta: float) -> void:
 	_update_body(delta)
 	_health += 2.0 * delta
 	_health = minf(_health, max_health)
+	_update_attack(delta)
 
 
 func damage(amount: float) -> void:
@@ -128,7 +130,7 @@ func _update_navigation(delta: float) -> void:
 			)
 		else:
 			_transition_to_attack_state()
-	if not _navigation_agent.is_navigation_finished():
+	if not _navigation_agent.is_navigation_finished() and (not can_see_player or global_position.distance_to(global.get_player().global_position) > 2.0):
 		var dir := global_position.direction_to(
 			_navigation_agent.get_next_path_position()
 		)
@@ -162,9 +164,9 @@ func _update_eye() -> void:
 	_eye.basis = Basis.looking_at(
 		global_basis.transposed() * dir, Vector3.UP, true
 	)
-	_eye.position.x = _initial_eye_position.x - 0.09 * sin(4.0 * _animation_time)
-	_eye.position.y = _initial_eye_position.y - 0.09 * sin(5.0 * _animation_time + 1.0)
-	_eye.position.z = _initial_eye_position.z - 0.09 * sin(6.0 * _animation_time + 2.0)
+	_eye.position.x = _initial_eye_position.x - 0.02 * sin(4.0 * _animation_time)
+	_eye.position.y = _initial_eye_position.y - 0.06 * sin(5.0 * _animation_time + 1.0)
+	_eye.position.z = _initial_eye_position.z - 0.02 * sin(6.0 * _animation_time + 2.0)
 
 
 func _update_eye_cover() -> void:
@@ -184,6 +186,54 @@ func _update_body(delta: float) -> void:
 		mesh.size -= 2.0 * mesh.size * delta
 		if mesh.size.x < 0.0 or mesh.size.y < 0.0:
 			mesh.size = Vector2.ZERO
+
+
+func _update_attack(delta: float) -> void:
+	# TODO: change to shapecast
+	var query := PhysicsRayQueryParameters3D.new()
+	query.from = global_position + Vector3.UP
+	var max_attack_range := 2.0
+	query.to = global.get_player().global_position
+	query.exclude = [get_rid()]
+	var collision := get_world_3d().direct_space_state.intersect_ray(query)
+	var attack_cooldown := 0.5
+	var can_attack := (
+		collision
+		and collision.collider is KinematicFpsController
+		and query.from.distance_to(collision.position) <= max_attack_range
+		and Util.get_ticks_sec() - _last_attack_at > attack_cooldown
+	)
+	if can_attack:
+		_last_attack_at = Util.get_ticks_sec()
+		var target := (
+			_initial_body_position
+			+ (
+				_body.global_transform.inverse()
+				* get_viewport().get_camera_3d().global_position
+				/ 2.0
+			)
+		)
+		get_tree().create_timer(attack_cooldown * 0.1).timeout.connect(func():
+			global.get_player().damage(5.0)
+		)
+		var tween = create_tween()
+		(tween
+			.tween_property(
+				_body,
+				"position",
+				target, attack_cooldown * 0.25
+			)
+			.set_trans(Tween.TRANS_ELASTIC)
+		)
+		(tween
+			.tween_property(
+				_body,
+				"position",
+				_initial_body_position, attack_cooldown * 0.75
+			)
+			.set_trans(Tween.TRANS_SPRING)
+			.set_ease(Tween.EASE_OUT)
+		)
 
 
 func _get_best_retreat_location() -> Node3D:

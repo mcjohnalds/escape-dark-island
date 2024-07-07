@@ -1,10 +1,13 @@
-[gd_scene load_steps=11 format=3 uid="uid://d1y8jdicca0ja"]
+[gd_scene load_steps=14 format=3 uid="uid://d1y8jdicca0ja"]
 
 [ext_resource type="Script" path="res://common/game.gd" id="1_nixut"]
 [ext_resource type="PackedScene" uid="uid://dsinasa0vu1ih" path="res://common/level.tscn" id="2_m3jn1"]
 [ext_resource type="PackedScene" uid="uid://4xgl4drja75q" path="res://ui/main_menu.tscn" id="3_3ao77"]
 [ext_resource type="Texture2D" uid="uid://c3e3e6qpqh5jl" path="res://ui/crosshair.svg" id="3_gck2x"]
 [ext_resource type="Shader" path="res://common/night_vision.gdshader" id="3_wn4tp"]
+[ext_resource type="Texture2D" uid="uid://7dmlqfg2dx63" path="res://common/blood_vignette.webp" id="5_8vg5e"]
+[ext_resource type="Script" path="res://common/blood_overlay.gd" id="6_h3boe"]
+[ext_resource type="PackedScene" uid="uid://ff3oqsj7dv02" path="res://ui/custom_label.tscn" id="6_pjl4h"]
 
 [sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_bqx4t"]
 
@@ -54,6 +57,42 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="BloodOverlayContainer" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BloodOverlay" type="TextureRect" parent="BloodOverlayContainer" groups=["blood_overlay"]]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 0
+offset_left = -288.0
+offset_top = -162.0
+offset_right = 1440.0
+offset_bottom = 810.0
+texture = ExtResource("5_8vg5e")
+expand_mode = 1
+script = ExtResource("6_h3boe")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_top = -41.0
+offset_right = 113.0
+grow_vertical = 0
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="HealthLabel" parent="MarginContainer" instance=ExtResource("6_pjl4h")]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Health 100%"
 
 [node name="MenuContainer" type="PanelContainer" parent="."]
 unique_name_in_owner = true

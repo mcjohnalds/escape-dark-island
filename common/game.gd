@@ -9,6 +9,7 @@ var _mouse_mode_mismatch_count := 0
 @onready var _container: Node3D = $Container
 @onready var _main_menu: MainMenu = %MainMenu
 @onready var _menu_container = %MenuContainer
+@onready var _health_label: Label = %HealthLabel
 
 
 func _ready() -> void:
@@ -29,6 +30,7 @@ func _process(_delta: float) -> void:
 		_mouse_mode_mismatch_count = 0
 	if _mouse_mode_mismatch_count > 10:
 		_pause()
+	_health_label.text = "Health %s%%" % global.get_player().get_health()
 
 
 func _unhandled_input(event: InputEvent) -> void:

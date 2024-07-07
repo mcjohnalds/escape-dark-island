@@ -11,6 +11,9 @@ class_name KinematicFpsController
 @export var muzzle_flash_lifetime := 0.05
 @export var smoke_lifetime := 0.3
 @export var back_speed := 0.6
+@export var max_health := 100.0
+@onready var _health := max_health
+var _camera_shake_offset := Vector3.ZERO
 
 @export_group("Audio")
 
@@ -173,7 +176,6 @@ var _quake_camera_tilt_ratio := 0.0
 @onready var _ground_ray_cast: RayCast3D = $GroundRayCast
 @onready var _swim_ray_cast: RayCast3D = $SwimRayCast
 @onready var _initial_fov := _camera.fov
-@onready var _initial_head_position := _head.position
 @onready var _initial_capsule_height = _capsule.height
 @onready var _bullet_start: Node3D = %BulletStart
 @onready var _smoke: GPUParticles3D = %Smoke
@@ -190,11 +192,21 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_update_movement(delta)
 	_update_shooting(delta)
+	_camera.position = _get_step_bob_camera_offset() + _camera_shake_offset
+	global.get_blood_overlay().strength = lerp(
+		global.get_blood_overlay().strength,
+		1.0 - _health / max_health,
+		delta * 2.0
+	)
 
 
 func _input(event: InputEvent) -> void:
 	if not Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
 		return
+	if event is InputEventKey and OS.is_debug_build():
+		var e: InputEventKey = event
+		if e.keycode == KEY_L and e.pressed:
+			damage(1.0)
 	if event is InputEventMouseMotion:
 		var e: InputEventMouseMotion = event
 		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
@@ -374,7 +386,6 @@ func _update_movement(delta: float) -> void:
 	_head_bob_cycle_position = _get_next_head_bob_cycle_position(
 		horizontal_velocity, is_jumping, delta
 	)
-	_camera.position = _get_next_camera_position()
 
 	velocity = new_velocity
 	_last_is_on_water = is_on_water
@@ -393,7 +404,7 @@ func _get_next_capsule_height(is_crouching: bool, delta: float) -> float:
 	return clampf(h, height_in_crouch, _initial_capsule_height)
 
 
-func _get_next_camera_position() -> Vector3:
+func _get_step_bob_camera_offset() -> Vector3:
 	if step_bob_enabled and head_bob_curve:
 		var x_pos := (
 			head_bob_curve.sample(_head_bob_cycle_position.x)
@@ -406,8 +417,8 @@ func _get_next_camera_position() -> Vector3:
 			* head_bob_range.y
 		)
 		if is_on_floor():
-			return _initial_head_position + Vector3(x_pos, y_pos, 0.0)
-	return _initial_head_position
+			return Vector3(x_pos, y_pos, 0.0)
+	return Vector3.ZERO
 
 
 func _get_next_head_bob_cycle_position(
@@ -637,3 +648,18 @@ func _update_muzzle_flash() -> void:
 		material.albedo_color.a = (
 			muzzle_flash_alpha_curve.sample_baked(d / muzzle_flash_lifetime)
 		)
+
+
+func get_health() -> float:
+	return _health
+
+
+func damage(amount: float) -> void:
+	_health -= amount
+	if _health <= 0.0:
+		_health = 0.0
+	var tween := create_tween()
+	var target := Vector3(randf_range(-0.05, 0.05), randf_range(0.05, 0.1), 0.0)
+	var duration := randf_range(0.05, 0.1)
+	tween.tween_property(self, "_camera_shake_offset", target, duration).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "_camera_shake_offset", Vector3.ZERO, 0.8).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)

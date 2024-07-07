@@ -9,7 +9,7 @@
 [ext_resource type="PhysicsMaterial" uid="uid://bklf2cx3fydt3" path="res://kinematic_fps_controller/physics/stone.tres" id="5_a0l7u"]
 [ext_resource type="PhysicsMaterial" path="res://kinematic_fps_controller/physics/wood.tres" id="6_ulh2i"]
 [ext_resource type="Script" path="res://kinematic_fps_controller/material_audio.gd" id="10_3id2w"]
-[ext_resource type="Curve" path="res://kinematic_fps_controller/bob_curve.tres" id="10_jwnxu"]
+[ext_resource type="Curve" uid="uid://djnxb6fy62042" path="res://kinematic_fps_controller/bob_curve.tres" id="10_jwnxu"]
 [ext_resource type="AudioStream" uid="uid://c2cl56b4rns2u" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_2.wav" id="12_wuy6q"]
 [ext_resource type="AudioStream" uid="uid://7gjj4wse1p7s" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_3.wav" id="13_ydtah"]
 [ext_resource type="AudioStream" uid="uid://p8tdym4d3gwm" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_4.wav" id="14_78mnj"]
@@ -154,22 +154,29 @@ size = Vector2(1.5, 2)
 [node name="KinematicFpsController" type="CharacterBody3D" groups=["player"]]
 floor_snap_length = 0.5
 script = ExtResource("2_8r0nc")
+fire_rate = 10.0
 goo_bullet_impact_scene = ExtResource("2_yniga")
 default_bullet_impact_scene = ExtResource("2_86agt")
 tracer_scene = ExtResource("3_83nad")
 muzzle_flash_alpha_curve = SubResource("Curve_uibhf")
+gun_linear_pid_kp = 500.0
+gun_linear_pid_kd = 50.0
+gun_angular_pid_kp = 500.0
+gun_angular_pid_kd = 50.0
 material_audios = Array[ExtResource("10_3id2w")]([SubResource("Resource_ju83a"), SubResource("Resource_3rmwo"), SubResource("Resource_rfw5k"), SubResource("Resource_kvpuo")])
 water_material_audio = SubResource("Resource_kvpuo")
 crouch_audios = Array[AudioStream]([ExtResource("19_dvqy3"), ExtResource("20_0e40x"), ExtResource("21_8kmms"), ExtResource("22_rfhmk")])
 uncrouch_audios = Array[AudioStream]([ExtResource("23_326x3"), ExtResource("24_knso1"), ExtResource("25_0xsk3")])
-head_bob_curve = ExtResource("10_jwnxu")
+vertical_horizontal_ratio = 4
+head_bob_x_curve = ExtResource("10_jwnxu")
+head_bob_y_curve = ExtResource("10_jwnxu")
 gravity_multiplier = 1.5
 base_speed = 5.0
 walk_acceleration = 4.0
 walk_deceleration = 5.0
 air_control = 0.1
-step_interval = 3.0
-jump_height = 3.0
+step_interval = 5.0
+jump_height = 3.5
 underwater_env = ExtResource("2_owsda")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -182,6 +189,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.46, 2.08165e-1
 fov = 80.0
 
 [node name="Gun" parent="Head/Camera3D" instance=ExtResource("28_e1ex1")]
+unique_name_in_owner = true
 transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7.71288e-09, 0.303, -0.307, -0.334)
 
 [node name="BulletStart" type="Node3D" parent="Head/Camera3D/Gun"]

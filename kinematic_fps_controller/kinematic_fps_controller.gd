@@ -12,8 +12,20 @@ class_name KinematicFpsController
 @export var smoke_lifetime := 0.3
 @export var back_speed := 0.6
 @export var max_health := 100.0
+@export var gun_linear_pid_kp := 1.0
+@export var gun_linear_pid_kd := 1.0
+@export var gun_angular_pid_kp := 1.0
+@export var gun_angular_pid_kd := 1.0
 var _camera_kick_offset := Vector3.ZERO
+var _gun_linear_velocity := Vector3.ZERO
+var _gun_angular_velocity := Vector3.ZERO
+var _last_camera_position := Vector3.ZERO
 @onready var _health := max_health
+@onready var _gun: Node3D = %Gun
+@onready var _initial_gun_position: Vector3 = _gun.position
+@onready var _initial_gun_rotation: Vector3 = _gun.rotation
+@onready var _gun_last_position := _initial_gun_position
+@onready var _gun_last_rotation := _initial_gun_rotation
 
 @export_group("Audio")
 
@@ -52,7 +64,9 @@ var _camera_kick_offset := Vector3.ZERO
 ## Difference of step bob movement between vertical and horizontal angle
 @export var vertical_horizontal_ratio = 2
 
-@export var head_bob_curve : Curve
+@export var head_bob_x_curve : Curve
+
+@export var head_bob_y_curve : Curve
 
 @export var head_bob_curve_multiplier := Vector2(2,2)
 
@@ -192,12 +206,21 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_update_movement(delta)
 	_update_shooting(delta)
+	_update_gun_linear_velocity(delta)
+	_update_gun_angular_velocity(delta)
 	_camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
+	var camera_velocity := (_last_camera_position - _camera.position) / delta
+	_gun_linear_velocity += Vector3(
+		0.1 * camera_velocity.x,
+		0.1 * camera_velocity.y,
+		0.0 * camera_velocity.length(),
+	)
 	global.get_blood_overlay().strength = lerp(
 		global.get_blood_overlay().strength,
 		1.0 - _health / max_health,
 		delta * 2.0
 	)
+	_last_camera_position = _camera.position
 
 
 func _input(event: InputEvent) -> void:
@@ -405,14 +428,14 @@ func _get_next_capsule_height(is_crouching: bool, delta: float) -> float:
 
 
 func _get_step_bob_camera_offset() -> Vector3:
-	if step_bob_enabled and head_bob_curve:
+	if step_bob_enabled:
 		var x_pos := (
-			head_bob_curve.sample(_head_bob_cycle_position.x)
+			head_bob_x_curve.sample(_head_bob_cycle_position.x)
 			* head_bob_curve_multiplier.x
 			* head_bob_range.x
 		)
 		var y_pos := (
-			head_bob_curve.sample(_head_bob_cycle_position.y)
+			head_bob_y_curve.sample(_head_bob_cycle_position.y)
 			* head_bob_curve_multiplier.y
 			* head_bob_range.y
 		)
@@ -621,6 +644,16 @@ func _update_shooting(delta: float) -> void:
 		)
 		tracer.end = bullet_end
 		get_parent().add_child(tracer)
+		_gun_linear_velocity += Vector3(
+			randf_range(-0.1, 0.1),
+			randf_range(0.5, 0.6),
+			randf_range(0.8, 0.9)
+		)
+		_gun_angular_velocity += Vector3(
+			randf_range(-0.9, 0.9),
+			randf_range(-0.2, 0.2),
+			randf_range(0.7, 0.9)
+		)
 
 		if collision:
 			var scene := (
@@ -638,6 +671,24 @@ func _update_shooting(delta: float) -> void:
 				enemy.damage(1.0)
 	_smoke.emitting = Util.get_ticks_sec() - _last_fired_at < smoke_lifetime
 	_update_muzzle_flash()
+
+
+func _update_gun_linear_velocity(delta: float) -> void:
+	var error := _initial_gun_position - _gun.position
+	var error_delta := (_gun_last_position - _gun.position) / delta
+	var accel := gun_linear_pid_kp * error + gun_linear_pid_kd * error_delta
+	_gun_linear_velocity += accel * delta
+	_gun_last_position = _gun.position
+	_gun.position += _gun_linear_velocity * delta
+
+
+func _update_gun_angular_velocity(delta: float) -> void:
+	var error := _initial_gun_rotation - _gun.rotation
+	var error_delta := (_gun_last_rotation - _gun.rotation) / delta
+	var accel := gun_angular_pid_kp * error + gun_angular_pid_kd * error_delta
+	_gun_angular_velocity += accel * delta
+	_gun_last_rotation = _gun.rotation
+	_gun.rotation += _gun_angular_velocity * delta
 
 
 func _update_muzzle_flash() -> void:

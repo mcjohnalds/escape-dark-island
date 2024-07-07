@@ -6,7 +6,7 @@ enum State { IDLE, ATTACK, RETREAT }
 @export var black_goo_explosion_scene: PackedScene
 @export var eye_explosion_scene: PackedScene
 var min_retreat_duration := 5.0
-var movement_speed := 5.0
+var movement_speed := 8.0
 var retreat_damage_threshold := 10.0
 var acceleration_speed := 4.0
 var max_health := 100.0
@@ -189,6 +189,8 @@ func _update_body(delta: float) -> void:
 
 
 func _update_attack(delta: float) -> void:
+	if not _alive:
+		return
 	# TODO: change to shapecast
 	var query := PhysicsRayQueryParameters3D.new()
 	query.from = global_position + Vector3.UP

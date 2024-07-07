@@ -45,6 +45,7 @@ retreat_locations=""
 debug_sphere=""
 debug_arrow=""
 blood_overlay=""
+death_overlay=""
 
 [gui]
 

@@ -141,3 +141,7 @@ func get_player() -> KinematicFpsController:
 func get_blood_overlay() -> BloodOverlay:
 	return get_tree().get_first_node_in_group("blood_overlay")
 
+
+func get_death_overlay() -> ColorRect:
+	return get_tree().get_first_node_in_group("death_overlay")
+

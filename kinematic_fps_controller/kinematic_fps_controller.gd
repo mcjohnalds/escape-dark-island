@@ -12,8 +12,8 @@ class_name KinematicFpsController
 @export var smoke_lifetime := 0.3
 @export var back_speed := 0.6
 @export var max_health := 100.0
+var _camera_kick_offset := Vector3.ZERO
 @onready var _health := max_health
-var _camera_shake_offset := Vector3.ZERO
 
 @export_group("Audio")
 
@@ -192,7 +192,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	_update_movement(delta)
 	_update_shooting(delta)
-	_camera.position = _get_step_bob_camera_offset() + _camera_shake_offset
+	_camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
 	global.get_blood_overlay().strength = lerp(
 		global.get_blood_overlay().strength,
 		1.0 - _health / max_health,
@@ -206,7 +206,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and OS.is_debug_build():
 		var e: InputEventKey = event
 		if e.keycode == KEY_L and e.pressed:
-			damage(1.0)
+			damage(100.0)
 	if event is InputEventMouseMotion:
 		var e: InputEventMouseMotion = event
 		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
@@ -656,10 +656,20 @@ func get_health() -> float:
 
 func damage(amount: float) -> void:
 	_health -= amount
+	_kick_camera()
 	if _health <= 0.0:
 		_health = 0.0
+		_fade_in_death_overlay()
+
+
+func _kick_camera() -> void:
 	var tween := create_tween()
 	var target := Vector3(randf_range(-0.05, 0.05), randf_range(0.05, 0.1), 0.0)
 	var duration := randf_range(0.05, 0.1)
-	tween.tween_property(self, "_camera_shake_offset", target, duration).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "_camera_shake_offset", Vector3.ZERO, 0.8).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "_camera_kick_offset", target, duration).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	tween.tween_property(self, "_camera_kick_offset", Vector3.ZERO, 0.8).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
+
+
+func _fade_in_death_overlay() -> void:
+	var tween := create_tween()
+	tween.tween_property(global.get_death_overlay(), "modulate:a", 1.0, 2.0).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)

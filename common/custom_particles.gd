@@ -17,7 +17,8 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	amount_ratio -= delta / lifetime
+	if scale_amount_ratio_to_zero:
+		amount_ratio -= delta / lifetime
 
 
 func _update() -> void:

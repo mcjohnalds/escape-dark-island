@@ -1,4 +1,4 @@
-[gd_scene load_steps=54 format=3 uid="uid://2oxdgu03lnbk"]
+[gd_scene load_steps=55 format=3 uid="uid://2oxdgu03lnbk"]
 
 [ext_resource type="Script" path="res://kinematic_fps_controller/kinematic_fps_controller.gd" id="2_8r0nc"]
 [ext_resource type="PackedScene" uid="uid://7nghfugqxiqf" path="res://common/metal_impact.tscn" id="2_86agt"]
@@ -9,7 +9,6 @@
 [ext_resource type="PhysicsMaterial" uid="uid://bklf2cx3fydt3" path="res://kinematic_fps_controller/physics/stone.tres" id="5_a0l7u"]
 [ext_resource type="PhysicsMaterial" path="res://kinematic_fps_controller/physics/wood.tres" id="6_ulh2i"]
 [ext_resource type="Script" path="res://kinematic_fps_controller/material_audio.gd" id="10_3id2w"]
-[ext_resource type="Curve" uid="uid://djnxb6fy62042" path="res://kinematic_fps_controller/bob_curve.tres" id="10_jwnxu"]
 [ext_resource type="AudioStream" uid="uid://c2cl56b4rns2u" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_2.wav" id="12_wuy6q"]
 [ext_resource type="AudioStream" uid="uid://7gjj4wse1p7s" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_3.wav" id="13_ydtah"]
 [ext_resource type="AudioStream" uid="uid://p8tdym4d3gwm" path="res://kinematic_fps_controller/jute-dh-steps/stepdirt_4.wav" id="14_78mnj"]
@@ -67,6 +66,16 @@ jump_audio_stream = ExtResource("21_1rkt1")
 landed_audio_stream = ExtResource("22_p60vq")
 step_audio_streams = Array[AudioStream]([ExtResource("21_1rkt1"), ExtResource("22_p60vq")])
 
+[sub_resource type="Curve" id="Curve_l0i00"]
+min_value = -1.0
+_data = [Vector2(0, 0), 0.0, 5.68421, 0, 0, Vector2(0.328302, 1), 0.0, 0.0, 0, 0, Vector2(0.709434, -1), 0.0, 0.0, 0, 0, Vector2(0.986956, 0), 4.8527, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="Curve" id="Curve_sgya5"]
+min_value = -1.0
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.275472, 1), 0.0, 0.0, 0, 0, Vector2(0.384906, 0.446285), 0.0, 0.0, 0, 0, Vector2(0.50566, -1), 0.0, 0.0, 0, 0, Vector2(0.750943, -0.501183), 0.0, 0.0, 0, 0, Vector2(0.986956, 0), 0.0, 0.0, 0, 0]
+point_count = 6
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fn1rj"]
 radius = 0.3
 height = 1.7
@@ -112,7 +121,7 @@ point_count = 2
 curve = SubResource("Curve_2b2ln")
 
 [sub_resource type="Curve" id="Curve_8lrmi"]
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0.182156), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
 point_count = 2
 
 [sub_resource type="CurveTexture" id="CurveTexture_st3no"]
@@ -123,7 +132,7 @@ lifetime_randomness = 0.19
 angle_max = 360.0
 angle_curve = SubResource("CurveTexture_oucc8")
 direction = Vector3(2.08165e-12, 1, 2.08165e-12)
-spread = 180.0
+spread = 0.853
 initial_velocity_min = 0.3
 initial_velocity_max = 0.3
 gravity = Vector3(2.08165e-12, 0.3, 2.08165e-12)
@@ -134,7 +143,10 @@ color = Color(1, 1, 1, 0.235294)
 alpha_curve = SubResource("CurveTexture_7yq5w")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k3mb8"]
-transparency = 1
+transparency = 2
+alpha_scissor_threshold = 0.077
+alpha_antialiasing_mode = 0
+blend_mode = 1
 cull_mode = 2
 shading_mode = 0
 vertex_color_use_as_albedo = true
@@ -149,7 +161,6 @@ particles_anim_loop = false
 
 [sub_resource type="QuadMesh" id="QuadMesh_cxfwg"]
 material = SubResource("StandardMaterial3D_k3mb8")
-size = Vector2(1.5, 2)
 
 [node name="KinematicFpsController" type="CharacterBody3D" groups=["player"]]
 floor_snap_length = 0.5
@@ -161,15 +172,16 @@ tracer_scene = ExtResource("3_83nad")
 muzzle_flash_alpha_curve = SubResource("Curve_uibhf")
 gun_linear_pid_kp = 500.0
 gun_linear_pid_kd = 50.0
-gun_angular_pid_kp = 500.0
-gun_angular_pid_kd = 50.0
+gun_angular_pid_kp = 300.0
+gun_angular_pid_kd = 20.0
 material_audios = Array[ExtResource("10_3id2w")]([SubResource("Resource_ju83a"), SubResource("Resource_3rmwo"), SubResource("Resource_rfw5k"), SubResource("Resource_kvpuo")])
 water_material_audio = SubResource("Resource_kvpuo")
 crouch_audios = Array[AudioStream]([ExtResource("19_dvqy3"), ExtResource("20_0e40x"), ExtResource("21_8kmms"), ExtResource("22_rfhmk")])
 uncrouch_audios = Array[AudioStream]([ExtResource("23_326x3"), ExtResource("24_knso1"), ExtResource("25_0xsk3")])
-vertical_horizontal_ratio = 4
-head_bob_x_curve = ExtResource("10_jwnxu")
-head_bob_y_curve = ExtResource("10_jwnxu")
+vertical_horizontal_ratio = 4.0
+head_bob_x_curve = SubResource("Curve_l0i00")
+head_bob_y_curve = SubResource("Curve_sgya5")
+head_bob_curve_multiplier = Vector2(1, 1)
 gravity_multiplier = 1.5
 base_speed = 5.0
 walk_acceleration = 4.0
@@ -188,13 +200,16 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.46, 2.08165e-1
 [node name="Camera3D" type="Camera3D" parent="Head"]
 fov = 80.0
 
-[node name="Gun" parent="Head/Camera3D" instance=ExtResource("28_e1ex1")]
+[node name="Gun" type="Node3D" parent="Head/Camera3D"]
 unique_name_in_owner = true
-transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7.71288e-09, 0.303, -0.307, -0.334)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.303, -0.307, -0.334)
+
+[node name="Mesh" parent="Head/Camera3D/Gun" instance=ExtResource("28_e1ex1")]
+transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7.71288e-09, 0, 0, 0)
 
 [node name="BulletStart" type="Node3D" parent="Head/Camera3D/Gun"]
 unique_name_in_owner = true
-transform = Transform3D(1, 0, -1.33785e-14, 0, 1, 0, 7.51022e-15, 0, 1, 3.59774, 0.61442, 1.19209e-07)
+transform = Transform3D(-7.71288e-09, 0, 0.17645, 0, 0.17645, 0, -0.17645, 0, -7.71288e-09, 0, 0.108414, -0.634821)
 
 [node name="MuzzleFlash1" type="MeshInstance3D" parent="Head/Camera3D/Gun/BulletStart"]
 unique_name_in_owner = true

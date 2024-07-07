@@ -22,10 +22,10 @@ var _gun_angular_velocity := Vector3.ZERO
 var _last_camera_position := Vector3.ZERO
 @onready var _health := max_health
 @onready var _gun: Node3D = %Gun
-@onready var _initial_gun_position: Vector3 = _gun.position
-@onready var _initial_gun_rotation: Vector3 = _gun.rotation
-@onready var _gun_last_position := _initial_gun_position
-@onready var _gun_last_rotation := _initial_gun_rotation
+@onready var _target_gun_position: Vector3 = _gun.position
+@onready var _target_gun_rotation: Vector3 = _gun.rotation
+@onready var _gun_last_position := _target_gun_position
+@onready var _gun_last_rotation := _target_gun_rotation
 
 @export_group("Audio")
 
@@ -62,7 +62,7 @@ var _last_camera_position := Vector3.ZERO
 @export var step_bob_enabled := true
 
 ## Difference of step bob movement between vertical and horizontal angle
-@export var vertical_horizontal_ratio = 2
+@export var vertical_horizontal_ratio = 2.0
 
 @export var head_bob_x_curve : Curve
 
@@ -209,11 +209,16 @@ func _physics_process(delta: float) -> void:
 	_update_gun_linear_velocity(delta)
 	_update_gun_angular_velocity(delta)
 	_camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
-	var camera_velocity := (_last_camera_position - _camera.position) / delta
+	var camera_linear_velocity := (_last_camera_position - _camera.position) / delta
 	_gun_linear_velocity += Vector3(
-		0.1 * camera_velocity.x,
-		0.1 * camera_velocity.y,
-		0.0 * camera_velocity.length(),
+		0.1 * camera_linear_velocity.x,
+		0.1 * camera_linear_velocity.y,
+		0.0 * camera_linear_velocity.length(),
+	)
+	_gun_angular_velocity += Vector3(
+		0.3 * camera_linear_velocity.y,
+		0.9 * camera_linear_velocity.x,
+		0.0
 	)
 	global.get_blood_overlay().strength = lerp(
 		global.get_blood_overlay().strength,
@@ -234,9 +239,10 @@ func _input(event: InputEvent) -> void:
 		var e: InputEventMouseMotion = event
 		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
 		var i := -1.0 if global.invert_mouse else 1.0
-		rotation.y -= e.relative.x * s
+		var a := 1.0 if _health > 0.0 else 0.1
+		rotation.y -= e.relative.x * s * a
 		_head.rotation.x = clamp(
-			_head.rotation.x - e.relative.y * s * i,
+			_head.rotation.x - e.relative.y * s * i * a,
 			-vertical_angle_limit,
 			vertical_angle_limit
 		)
@@ -254,7 +260,7 @@ func _update_movement(delta: float) -> void:
 	var input_jump := false
 	var input_crouch := false
 	var input_sprint := false
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED:
+	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and _health > 0.0:
 		if Input.is_action_just_pressed("move_fly_mode"):
 			_is_flying = not _is_flying
 		input_horizontal = Input.get_vector(
@@ -618,6 +624,8 @@ func _get_next_velocity(
 
 
 func _update_shooting(delta: float) -> void:
+	if _health == 0.0:
+		return
 	var fire_bullet := (
 		Input.is_action_pressed("shoot")
 		and Util.get_ticks_sec() - _last_fired_at > 1.0 / fire_rate
@@ -626,7 +634,10 @@ func _update_shooting(delta: float) -> void:
 		_last_fired_at = Util.get_ticks_sec()
 		var query := PhysicsRayQueryParameters3D.new()
 		query.from = _camera.global_position
-		query.to = _camera.global_position - _camera.global_basis.z * max_bullet_range
+		# var q := _camera.global_basis.get_rotation_quaternion() * Quaternion.from_euler((_target_gun_rotation - _gun.rotation) * Vector3(2.0, 10.0, 0.0)).normalized()
+		# query.to = _camera.global_position + q * Vector3.FORWARD * max_bullet_range
+		var dir := -_gun.global_basis.z
+		query.to = _camera.global_position + dir * max_bullet_range
 		query.exclude = [get_rid()]
 		var collision := get_world_3d().direct_space_state.intersect_ray(query)
 
@@ -650,9 +661,9 @@ func _update_shooting(delta: float) -> void:
 			randf_range(0.8, 0.9)
 		)
 		_gun_angular_velocity += Vector3(
-			randf_range(-0.9, 0.9),
-			randf_range(-0.2, 0.2),
-			randf_range(0.7, 0.9)
+			randf_range(-0.1, 3.0),
+			randf_range(-3.0, 3.0),
+			randf_range(-0.9, 0.9)
 		)
 
 		if collision:
@@ -674,19 +685,21 @@ func _update_shooting(delta: float) -> void:
 
 
 func _update_gun_linear_velocity(delta: float) -> void:
-	var error := _initial_gun_position - _gun.position
+	var error := _target_gun_position - _gun.position
 	var error_delta := (_gun_last_position - _gun.position) / delta
 	var accel := gun_linear_pid_kp * error + gun_linear_pid_kd * error_delta
 	_gun_linear_velocity += accel * delta
+	_gun_linear_velocity = _gun_linear_velocity.limit_length(0.1)
 	_gun_last_position = _gun.position
 	_gun.position += _gun_linear_velocity * delta
 
 
 func _update_gun_angular_velocity(delta: float) -> void:
-	var error := _initial_gun_rotation - _gun.rotation
+	var error := _target_gun_rotation - _gun.rotation
 	var error_delta := (_gun_last_rotation - _gun.rotation) / delta
 	var accel := gun_angular_pid_kp * error + gun_angular_pid_kd * error_delta
 	_gun_angular_velocity += accel * delta
+	_gun_angular_velocity = _gun_angular_velocity.limit_length(1.0)
 	_gun_last_rotation = _gun.rotation
 	_gun.rotation += _gun_angular_velocity * delta
 
@@ -710,6 +723,8 @@ func damage(amount: float) -> void:
 	_kick_camera()
 	if _health <= 0.0:
 		_health = 0.0
+		_target_gun_position = _target_gun_position + Vector3.DOWN * 0.1
+		_target_gun_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
 		_fade_in_death_overlay()
 
 
@@ -723,4 +738,4 @@ func _kick_camera() -> void:
 
 func _fade_in_death_overlay() -> void:
 	var tween := create_tween()
-	tween.tween_property(global.get_death_overlay(), "modulate:a", 1.0, 2.0).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	tween.tween_property(global.get_death_overlay(), "modulate:a", 1.0, 10.0).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)

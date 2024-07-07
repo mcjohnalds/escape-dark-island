@@ -8,7 +8,7 @@ enum State { IDLE, ATTACK, RETREAT }
 var min_retreat_duration := 5.0
 var movement_speed := 8.0
 var retreat_damage_threshold := 10.0
-var acceleration_speed := 4.0
+var acceleration_speed := 2.0
 var max_health := 100.0
 var _state := State.IDLE
 var _damage_taken_since_last_state_transition := 0.0
@@ -130,15 +130,18 @@ func _update_navigation(delta: float) -> void:
 			)
 		else:
 			_transition_to_attack_state()
+	var target_dir := Vector3.ZERO
 	if not _navigation_agent.is_navigation_finished() and (not can_see_player or global_position.distance_to(global.get_player().global_position) > 2.0):
-		var dir := global_position.direction_to(
+		target_dir = global_position.direction_to(
 			_navigation_agent.get_next_path_position()
 		)
-		velocity = lerp(
-			velocity, dir * movement_speed, delta * acceleration_speed
-		)
-		scale = Vector3.ONE
-		move_and_slide()
+	velocity = lerp(
+		velocity, target_dir * movement_speed, delta * acceleration_speed
+	)
+	# No idea why but self sometimes gets scaled a little bit sometimes and we
+	# have to reset it or else move_and_slide will error
+	scale = Vector3.ONE
+	move_and_slide()
 	for i in get_slide_collision_count():
 		if (
 			get_slide_collision(i).get_collider() is KinematicFpsController

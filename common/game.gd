@@ -10,6 +10,8 @@ var _mouse_mode_mismatch_count := 0
 @onready var _main_menu: MainMenu = %MainMenu
 @onready var _menu_container = %MenuContainer
 @onready var _health_label: Label = %HealthLabel
+@onready var _sprint_bar: ColorRect = %SprintBar
+@onready var _sprint_bar_initial_size: Vector2 = _sprint_bar.size
 
 
 func _ready() -> void:
@@ -31,6 +33,7 @@ func _process(_delta: float) -> void:
 	if _mouse_mode_mismatch_count > 10:
 		_pause()
 	_health_label.text = "Health %s%%" % global.get_player().get_health()
+	_sprint_bar.size.x = global.get_player().sprint_energy * _sprint_bar_initial_size.x
 
 
 func _unhandled_input(event: InputEvent) -> void:

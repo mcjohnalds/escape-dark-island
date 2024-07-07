@@ -73,7 +73,7 @@ point_count = 4
 
 [sub_resource type="Curve" id="Curve_sgya5"]
 min_value = -1.0
-_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.275472, 1), 0.0, 0.0, 0, 0, Vector2(0.384906, 0.446285), 0.0, 0.0, 0, 0, Vector2(0.50566, -1), 0.0, 0.0, 0, 0, Vector2(0.750943, -0.501183), 0.0, 0.0, 0, 0, Vector2(0.986956, 0), 0.0, 0.0, 0, 0]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.181132, 0.593942), 0.0, 0.0, 0, 0, Vector2(0.411321, -0.168954), 0.0, 0.0, 0, 0, Vector2(0.592453, -1), 0.0, 0.0, 0, 0, Vector2(0.784906, -0.316612), 0.0, 0.0, 0, 0, Vector2(0.986956, 0), 0.0, 0.0, 0, 0]
 point_count = 6
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_fn1rj"]
@@ -183,10 +183,11 @@ head_bob_x_curve = SubResource("Curve_l0i00")
 head_bob_y_curve = SubResource("Curve_sgya5")
 head_bob_curve_multiplier = Vector2(1, 1)
 gravity_multiplier = 1.5
-base_speed = 5.0
+base_speed = 3.0
 walk_acceleration = 4.0
 walk_deceleration = 5.0
 air_control = 0.1
+sprint_speed_multiplier = 2.0
 step_interval = 5.0
 jump_height = 3.5
 underwater_env = ExtResource("2_owsda")

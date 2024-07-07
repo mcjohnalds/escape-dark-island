@@ -16,6 +16,10 @@ class_name KinematicFpsController
 @export var gun_linear_pid_kd := 1.0
 @export var gun_angular_pid_kp := 1.0
 @export var gun_angular_pid_kd := 1.0
+@export var sprint_seconds := 3.0
+@export var sprint_regen_time := 6.0
+var sprint_energy := 1.0
+var _last_sprint_cooldown_at := -1000.0
 var _camera_kick_offset := Vector3.ZERO
 var _gun_linear_velocity := Vector3.ZERO
 var _gun_angular_velocity := Vector3.ZERO
@@ -209,7 +213,9 @@ func _physics_process(delta: float) -> void:
 	_update_gun_linear_velocity(delta)
 	_update_gun_angular_velocity(delta)
 	_camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
-	var camera_linear_velocity := (_last_camera_position - _camera.position) / delta
+	var camera_linear_velocity := (
+		_last_camera_position - _camera.position
+	) / delta
 	_gun_linear_velocity += Vector3(
 		0.1 * camera_linear_velocity.x,
 		0.1 * camera_linear_velocity.y,
@@ -324,6 +330,7 @@ func _update_movement(delta: float) -> void:
 		and not _is_flying
 		and not is_floating
 		and not is_submerged
+		and sprint_energy > 0.0
 	)
 
 	var is_entered_water := is_on_water and not _last_is_on_water
@@ -380,6 +387,8 @@ func _update_movement(delta: float) -> void:
 		if is_landed_on_floor_this_frame:
 			next_step_cycle = 0.0
 
+	var is_sprint_regen_cooldown := Util.get_ticks_sec() - _last_sprint_cooldown_at < 3.0
+
 	# Calculations happen above, side-effects happen below
 
 	if quake_camera_tilt_enabled:
@@ -415,6 +424,13 @@ func _update_movement(delta: float) -> void:
 	_head_bob_cycle_position = _get_next_head_bob_cycle_position(
 		horizontal_velocity, is_jumping, delta
 	)
+	if is_sprinting:
+		sprint_energy -= delta / sprint_seconds
+	elif not is_sprint_regen_cooldown:
+		sprint_energy += delta / sprint_regen_time
+	if sprint_energy <= 0.0 and input_sprint:
+		_last_sprint_cooldown_at = Util.get_ticks_sec()
+	sprint_energy = clampf(sprint_energy, 0.0, 1.0)
 
 	velocity = new_velocity
 	_last_is_on_water = is_on_water

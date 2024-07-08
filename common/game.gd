@@ -57,7 +57,7 @@ func _update_ammo_label() -> void:
 				"%s/%s - 5.56 mm"
 				% [
 					p.get_gun_ammo_in_magazine(),
-					p.get_gun_ammo() - p.get_gun_ammo_in_magazine()
+					p.get_gun_ammo_in_inventory()
 				]
 			)
 		KinematicFpsController.WeaponType.GRENADE:

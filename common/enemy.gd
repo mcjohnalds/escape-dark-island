@@ -7,7 +7,7 @@ enum State { IDLE, ATTACK, RETREAT }
 @export var eye_explosion_scene: PackedScene
 var min_retreat_duration := 5.0
 var movement_speed := 8.0
-var retreat_damage_threshold := 10.0
+var retreat_damage_threshold := 20.0
 var acceleration_speed := 2.0
 var max_health := 100.0
 var _state := State.IDLE
@@ -214,7 +214,7 @@ func _update_attack() -> void:
 			)
 		)
 		get_tree().create_timer(attack_cooldown * 0.1).timeout.connect(func():
-			global.get_player().damage(5.0)
+			global.get_player().damage(10.0)
 		)
 		var tween = create_tween()
 		(tween

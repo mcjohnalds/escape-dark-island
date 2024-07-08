@@ -37,8 +37,9 @@ var _last_camera_rotation := Vector3.ZERO
 var _weapon_type: WeaponType = WeaponType.GUN
 var _grenade_throw_cooldown_remaining := 0.0
 var _grenade_count := 3
-var _gun_ammo_in_magazine := 30
-var _gun_ammo := 90
+var _gun_ammo_in_magazine := 31
+var _gun_ammo_in_inventory := 90
+var _reloading_gun := false
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -228,7 +229,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_update_movement(delta)
-	_update_gun(delta)
+	_update_gun_shooting(delta)
 	_update_grenade(delta)
 	_update_weapon_linear_velocity(delta)
 	_update_weapon_angular_velocity(delta)
@@ -288,6 +289,7 @@ func _input(event: InputEvent) -> void:
 		_uncrouch_audio_stream_player.play()
 	if (
 		event.is_action_pressed("select_weapon_1")
+		and not _is_reloading()
 		and not _switching_weapon
 		and _weapon_type != WeaponType.GUN
 	):
@@ -304,6 +306,7 @@ func _input(event: InputEvent) -> void:
 		_switching_weapon = false
 	if (
 		event.is_action_pressed("select_weapon_2")
+		and not _is_reloading()
 		and not _switching_weapon
 		and _weapon_type != WeaponType.GRENADE
 		and _grenade_count > 0
@@ -319,6 +322,20 @@ func _input(event: InputEvent) -> void:
 		if _health == 0.0:
 			return
 		_switching_weapon = false
+	if event.is_action_pressed("reload") and not _is_reloading() and _weapon_type == WeaponType.GUN and _gun_ammo_in_magazine < 31 and _gun_ammo_in_inventory > 0:
+		_reloading_gun = true
+		await _bring_weapon_down()
+		await get_tree().create_timer(1.7).timeout
+		if _health == 0.0:
+			return
+		var target := 30 if _gun_ammo_in_magazine == 0 else 31
+		var b := mini(target - _gun_ammo_in_magazine, _gun_ammo_in_inventory)
+		_gun_ammo_in_magazine += b
+		_gun_ammo_in_inventory -= b
+		await _bring_weapon_up()
+		if _health == 0.0:
+			return
+		_reloading_gun = false
 
 
 func _bring_weapon_down() -> void:
@@ -745,14 +762,18 @@ func _get_next_velocity(
 	return vel
 
 
-func _update_gun(delta: float) -> void:
-	if _health == 0.0 or _weapon_type != WeaponType.GUN or _switching_weapon:
-		return
+func _update_gun_shooting(delta: float) -> void:
 	var fire_bullet := (
-		Input.is_action_pressed("shoot")
+		_health > 0.0
+		and not _is_reloading()
+		and _weapon_type == WeaponType.GUN
+		and _gun_ammo_in_magazine > 0
+		and not _switching_weapon
+		and Input.is_action_pressed("shoot")
 		and Util.get_ticks_sec() - _gun_last_fired_at > 1.0 / fire_rate
 	)
 	if fire_bullet:
+		_gun_ammo_in_magazine -= 1
 		_gun_last_fired_at = Util.get_ticks_sec()
 		var query := PhysicsRayQueryParameters3D.new()
 		query.from = _camera.global_position
@@ -805,7 +826,7 @@ func _update_gun(delta: float) -> void:
 
 			if collision.collider is Enemy:
 				var enemy: Enemy = collision.collider
-				enemy.damage(1.0)
+				enemy.damage(3.0)
 	_smoke.emitting = (
 		Util.get_ticks_sec() - _gun_last_fired_at < smoke_lifetime
 	)
@@ -921,8 +942,8 @@ func get_gun_ammo_in_magazine() -> int:
 	return _gun_ammo_in_magazine
 
 
-func get_gun_ammo() -> int:
-	return _gun_ammo
+func get_gun_ammo_in_inventory() -> int:
+	return _gun_ammo_in_inventory
 
 
 func can_throw_grenade() -> bool:
@@ -940,3 +961,7 @@ func get_grenade_count() ->	int:
 
 func get_weapon_type() -> WeaponType:
 	return _weapon_type
+
+
+func _is_reloading() -> bool:
+	return _reloading_gun or _grenade_throw_cooldown_remaining > 0.0

@@ -1,9 +1,7 @@
 Todo:
 
-- Ammo
-- Reloading
-- Bandages
 - Disable enemy collider on death
+- Bandages
 - Loot ammo, grenades, bandages
 - More buildings
 - Furinture colliders

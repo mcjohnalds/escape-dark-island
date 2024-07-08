@@ -3,7 +3,7 @@ class_name ThrownGrenade
 
 @export var explosion_scene: PackedScene
 @export var explosion_range := 14.0
-@export var explosion_max_damage := 100.0
+@export var explosion_max_damage := 110.0
 
 
 func _ready() -> void:

@@ -139,3 +139,8 @@ static func get_children_recursive(
 		if child.get_child_count(include_internal) > 0:
 			nodes.append_array(get_children_recursive(child, include_internal))
 	return nodes
+
+
+static func sample_curve_tangent(curve: Curve, offset: float) -> float:
+	var px := 1.0 / curve.point_count
+	return (curve.sample(offset + px) - curve.sample(offset - px)) / (2.0 * px)

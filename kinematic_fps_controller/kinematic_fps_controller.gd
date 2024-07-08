@@ -19,14 +19,20 @@ enum WeaponType { GUN, GRENADE }
 @export var weapon_linear_pid_kd := 1.0
 @export var weapon_angular_pid_kp := 1.0
 @export var weapon_angular_pid_kd := 1.0
+@export var camera_linear_pid_kp := 1.0
+@export var camera_linear_pid_kd := 1.0
+@export var camera_angular_pid_kp := 1.0
+@export var camera_angular_pid_kd := 1.0
 @export var sprint_seconds := 3.0
 @export var sprint_regen_time := 6.0
 var sprint_energy := 1.0
 var _last_sprint_cooldown_at := -1000.0
-var _camera_kick_offset := Vector3.ZERO
+var _camera_linear_velocity := Vector3.ZERO
+var _camera_angular_velocity := Vector3.ZERO
 var _weapon_linear_velocity := Vector3.ZERO
 var _weapon_angular_velocity := Vector3.ZERO
 var _last_camera_position := Vector3.ZERO
+var _last_camera_rotation := Vector3.ZERO
 var _weapon_type: WeaponType = WeaponType.GUN
 var _grenade_throw_cooldown_remaining := 0.0
 @onready var _health := max_health
@@ -220,7 +226,7 @@ func _physics_process(delta: float) -> void:
 	_update_grenade(delta)
 	_update_weapon_linear_velocity(delta)
 	_update_weapon_angular_velocity(delta)
-	_camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
+	# _camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
 	var camera_linear_velocity := (
 		_last_camera_position - _camera.position
 	) / delta
@@ -239,7 +245,8 @@ func _physics_process(delta: float) -> void:
 		1.0 - _health / max_health,
 		delta * 2.0
 	)
-	_last_camera_position = _camera.position
+	_update_camera_linear_velocity(delta)
+	_update_camera_angular_velocity(delta)
 
 
 func _input(event: InputEvent) -> void:
@@ -248,18 +255,25 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and OS.is_debug_build():
 		var e: InputEventKey = event
 		if e.keycode == KEY_L and e.pressed:
-			damage(100.0)
+			damage(1.0)
 	if event is InputEventMouseMotion:
 		var e: InputEventMouseMotion = event
 		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
 		var i := -1.0 if global.invert_mouse else 1.0
 		var a := 1.0 if _health > 0.0 else 0.1
+		var last_x := _head.rotation.x
+		var last_y := rotation.y
 		rotation.y -= e.relative.x * s * a
 		_head.rotation.x = clamp(
 			_head.rotation.x - e.relative.y * s * i * a,
 			-vertical_angle_limit,
 			vertical_angle_limit
 		)
+		var dx := angle_difference(_head.rotation.x, last_x)
+		var dy := angle_difference(rotation.y, last_y)
+		_weapon_linear_velocity += Vector3(-dy, dx, 0.0)
+		_weapon_angular_velocity += Vector3(dx, dy, 0.0)
+
 	if event.is_action_pressed("move_crouch"):
 		_crouch_audio_stream_player.stream = crouch_audios.pick_random()
 		_crouch_audio_stream_player.play()
@@ -409,7 +423,7 @@ func _update_movement(delta: float) -> void:
 
 	# Calculations happen above, side-effects happen below
 
-	if quake_camera_tilt_enabled:
+	if quake_camera_tilt_enabled and false:
 		var target := input_horizontal.x
 		var direction := signf(target - _quake_camera_tilt_ratio)
 		var new_ratio := (
@@ -426,6 +440,16 @@ func _update_movement(delta: float) -> void:
 			smoothstep(-1.0, 1.0, -_quake_camera_tilt_ratio)
 		)
 
+	if is_on_floor():
+		var dv := (
+			_get_head_bob_curve_tangent()
+				* delta
+				* horizontal_velocity.length()
+				* Vector3(10.0, 5.0, 0.0)
+		)
+		_camera_linear_velocity += dv * 1.5
+		_weapon_angular_velocity += Vector3(dv.y, dv.x, 0.0) * 2.0
+
 	if is_jumping:
 		_play_jump_audio(is_on_water, is_landed_on_floor_this_frame)
 	if is_landed_on_floor_this_frame or is_entered_water:
@@ -437,11 +461,17 @@ func _update_movement(delta: float) -> void:
 		_play_step_audio(is_on_water, is_landed_on_floor_this_frame)
 
 	_step_cycle = next_step_cycle
+	var previous_capsule_height := _capsule.height
 	_capsule.height = _get_next_capsule_height(is_crouching, delta)
 	_camera.fov = _get_next_camera_fov(new_velocity, is_crouching, delta)
 	_head_bob_cycle_position = _get_next_head_bob_cycle_position(
 		horizontal_velocity, is_jumping, delta
 	)
+
+	if is_crouching:
+		var dh := (_capsule.height - previous_capsule_height) * delta
+		_weapon_linear_velocity += Vector3(0.0, dh * 100.0, 0.0)
+		_weapon_angular_velocity += Vector3(dh * delta * 500.0, 0.0, 0.0)
 
 	if is_sprinting:
 		sprint_energy -= delta / sprint_seconds
@@ -471,15 +501,19 @@ func _get_next_capsule_height(is_crouching: bool, delta: float) -> float:
 	return clampf(h, height_in_crouch, _initial_capsule_height)
 
 
-func _get_step_bob_camera_offset() -> Vector3:
+func _get_head_bob_curve_tangent() -> Vector3:
 	if step_bob_enabled:
 		var x_pos := (
-			head_bob_x_curve.sample(_head_bob_cycle_position.x)
+			Util.sample_curve_tangent(
+				head_bob_x_curve, _head_bob_cycle_position.x
+			)
 			* head_bob_curve_multiplier.x
 			* head_bob_range.x
 		)
 		var y_pos := (
-			head_bob_y_curve.sample(_head_bob_cycle_position.y)
+			Util.sample_curve_tangent(
+				head_bob_y_curve, _head_bob_cycle_position.y
+			)
 			* head_bob_curve_multiplier.y
 			* head_bob_range.y
 		)
@@ -658,6 +692,11 @@ func _get_next_velocity(
 
 	if is_jumping:
 		vel.y = jump_height
+	_weapon_angular_velocity += Vector3(
+		-vel.y * delta * 10.0,
+		0.0,
+		0.0,
+	)
 	return vel
 
 
@@ -693,16 +732,20 @@ func _update_gun(delta: float) -> void:
 		)
 		tracer.end = bullet_end
 		get_parent().add_child(tracer)
-		_weapon_linear_velocity += Vector3(
+		var dlv := Vector3(
 			randf_range(-0.1, 0.1),
 			randf_range(0.5, 0.6),
 			randf_range(0.8, 0.9)
 		)
-		_weapon_angular_velocity += Vector3(
+		var dav := Vector3(
 			randf_range(-0.1, 3.0),
 			randf_range(-3.0, 3.0),
 			randf_range(-0.9, 0.9)
 		)
+		_weapon_linear_velocity += dlv * 0.5
+		_weapon_angular_velocity += dav * 0.5
+		_camera_linear_velocity += dlv * 1.0 * Vector3(1.0, 1.0, 1.2)
+		_camera_angular_velocity += dav * 0.05
 
 		if collision:
 			var scene := (
@@ -758,6 +801,24 @@ func _update_weapon_angular_velocity(delta: float) -> void:
 	_weapon.rotation += _weapon_angular_velocity * delta
 
 
+func _update_camera_linear_velocity(delta: float) -> void:
+	var error := -_camera.position
+	var error_delta := (_last_camera_position - _camera.position) / delta
+	var accel := camera_linear_pid_kp * error + camera_linear_pid_kd * error_delta
+	_camera_linear_velocity += accel * delta
+	_last_camera_position = _camera.position
+	_camera.position += _camera_linear_velocity * delta
+
+
+func _update_camera_angular_velocity(delta: float) -> void:
+	var error := -_camera.rotation
+	var error_delta := (_last_camera_rotation - _camera.rotation) / delta
+	var accel := camera_angular_pid_kp * error + camera_angular_pid_kd * error_delta
+	_camera_angular_velocity += accel * delta
+	_last_camera_rotation = _camera.rotation
+	_camera.rotation += _camera_angular_velocity * delta
+
+
 func _update_muzzle_flash() -> void:
 	for muzzle_flash in _muzzle_flashes:
 		var material: StandardMaterial3D = muzzle_flash.material_override
@@ -774,20 +835,17 @@ func get_health() -> float:
 
 func damage(amount: float) -> void:
 	_health -= amount
-	_kick_camera()
+	_camera_linear_velocity += Vector3(
+		randf_range(-5.0, 5.0), randf_range(5.0, 10.0), 0.0
+	)
+	_camera_angular_velocity += Vector3(
+		randf_range(1.0, 2.0), 0.0, 0.0
+	)
 	if _health <= 0.0:
 		_health = 0.0
 		_target_weapon_position = _target_weapon_position + Vector3.DOWN * 0.1
 		_target_weapon_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
 		_fade_in_death_overlay()
-
-
-func _kick_camera() -> void:
-	var tween := create_tween()
-	var target := Vector3(randf_range(-0.05, 0.05), randf_range(0.05, 0.1), 0.0)
-	var duration := randf_range(0.05, 0.1)
-	tween.tween_property(self, "_camera_kick_offset", target, duration).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
-	tween.tween_property(self, "_camera_kick_offset", Vector3.ZERO, 0.8).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 func _fade_in_death_overlay() -> void:

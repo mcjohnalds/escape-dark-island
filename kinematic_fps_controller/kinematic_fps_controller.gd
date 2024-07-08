@@ -453,6 +453,9 @@ func _update_movement(delta: float) -> void:
 	_last_is_floating = is_floating
 	_last_is_submerged = is_submerged
 	_last_is_on_floor = is_on_floor()
+	# No idea why but self sometimes gets scaled a little bit sometimes and we
+	# have to reset it or else move_and_slide will error
+	scale = Vector3.ONE
 	move_and_slide()
 
 
@@ -722,8 +725,10 @@ func _update_grenade(delta: float) -> void:
 	if _grenade_throw_cooldown_remaining == 0.0 and Input.is_action_pressed("shoot"):
 		_grenade_throw_cooldown_remaining = 2.0
 		var grenade: ThrownGrenade = thrown_grenade_scene.instantiate()
-		grenade.position = _grenade.global_position
-		grenade.linear_velocity = -_camera.global_basis.z * 20.0
+		grenade.position = _grenade.global_position - _camera.global_basis.x * 0.1
+		grenade.linear_velocity += -_camera.global_basis.z * 15.0
+		grenade.linear_velocity += _camera.global_basis.y * 3.0
+		grenade.linear_velocity += velocity
 		global.get_level().add_child(grenade)
 	if _grenade_throw_cooldown_remaining > 0.0:
 		_grenade_throw_cooldown_remaining -= delta

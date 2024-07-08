@@ -26,16 +26,15 @@ lifetime_randomness = 0.11
 particle_flag_damping_as_friction = true
 angle_max = 360.0
 spread = 180.0
-initial_velocity_min = 100.0
-initial_velocity_max = 100.0
+initial_velocity_max = 20.0
 gravity = Vector3(2.08165e-12, -1, 1)
-damping_min = 4.0
+damping_min = 3.0
 damping_max = 4.0
 scale_curve = SubResource("CurveTexture_a5vt7")
 alpha_curve = SubResource("CurveTexture_yctup")
 collision_mode = 1
 collision_friction = 0.0
-collision_bounce = 0.0
+collision_bounce = 1.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ao44d"]
 transparency = 1
@@ -123,13 +122,16 @@ lifetime_randomness = 0.37
 particle_flag_align_y = true
 angle_max = 360.0
 spread = 180.0
-initial_velocity_min = 5.0
-initial_velocity_max = 10.0
+initial_velocity_min = 10.0
+initial_velocity_max = 20.0
 damping_max = 10.0
 scale_min = 2.0
 scale_max = 2.0
 scale_curve = SubResource("CurveTexture_3sagr")
 alpha_curve = SubResource("CurveTexture_s82gf")
+collision_mode = 1
+collision_friction = 0.0
+collision_bounce = 0.0
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p2v8h"]
 transparency = 2
@@ -152,8 +154,9 @@ free_after_lifetime = true
 
 [node name="Smoke" type="GPUParticles3D" parent="."]
 transform = Transform3D(1.77989, 0, 0, 0, 1.77989, 0, 0, 0, 1.77989, 0, 0, 0)
-amount = 20
+amount = 30
 explosiveness = 0.99
+collision_base_size = 8.0
 process_material = SubResource("ParticleProcessMaterial_eh2tj")
 draw_pass_1 = SubResource("QuadMesh_yeceg")
 script = ExtResource("3_7tna8")
@@ -163,15 +166,18 @@ transform = Transform3D(1.77989, 0, 0, 0, 1.77989, 0, 0, 0, 1.77989, 0, 0, 0)
 amount = 3
 lifetime = 0.2
 explosiveness = 0.99
+collision_base_size = 1.0
 process_material = SubResource("ParticleProcessMaterial_1ptg0")
 draw_pass_1 = SubResource("QuadMesh_vq1ou")
 script = ExtResource("3_7tna8")
 
 [node name="Sparks" type="GPUParticles3D" parent="."]
 transform = Transform3D(1.77989, 0, 0, 0, 1.77989, 0, 0, 0, 1.77989, 0, 0, 0)
-amount = 20
+amount = 30
+lifetime = 2.0
 explosiveness = 0.99
 randomness = 0.9
+collision_base_size = 0.1
 process_material = SubResource("ParticleProcessMaterial_6iesy")
 draw_pass_1 = SubResource("QuadMesh_sfq4l")
 script = ExtResource("3_7tna8")

@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	_update_body(delta)
 	_health += 2.0 * delta
 	_health = minf(_health, max_health)
-	_update_attack(delta)
+	_update_attack()
 
 
 func damage(amount: float) -> void:
@@ -191,7 +191,7 @@ func _update_body(delta: float) -> void:
 			mesh.size = Vector2.ZERO
 
 
-func _update_attack(delta: float) -> void:
+func _update_attack() -> void:
 	if not _alive:
 		return
 	# TODO: change to shapecast

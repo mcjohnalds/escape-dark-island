@@ -1,6 +1,7 @@
 Todo:
 
 - More buildings
+- Melee
 - Textures
 - Out of sprint UI animation indicator
 - Better grenade raycast

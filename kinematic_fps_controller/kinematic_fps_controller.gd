@@ -43,7 +43,8 @@ var _gun_ammo_in_magazine := 31
 var _gun_ammo_in_inventory := 0
 var _bandages_in_inventory := 0
 var _reloading_gun := false
-var _can_grab := false
+var _aiming_at_grabbable: Grabbable = null
+var _grabbing: Grabbable = null
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -260,7 +261,7 @@ func _physics_process(delta: float) -> void:
 	)
 	_update_camera_linear_velocity(delta)
 	_update_camera_angular_velocity(delta)
-	_update_grabbing()
+	_update_grabbing(delta)
 
 
 func _input(event: InputEvent) -> void:
@@ -299,6 +300,7 @@ func _input(event: InputEvent) -> void:
 		and not _is_reloading()
 		and not _switching_weapon
 		and _weapon_type != WeaponType.GUN
+		and not _grabbing
 	):
 		_switching_weapon = true
 		await _bring_weapon_down()
@@ -318,6 +320,7 @@ func _input(event: InputEvent) -> void:
 		and not _switching_weapon
 		and _weapon_type != WeaponType.GRENADE
 		and _grenade_count > 0
+		and not _grabbing
 	):
 		_switching_weapon = true
 		await _bring_weapon_down()
@@ -337,6 +340,7 @@ func _input(event: InputEvent) -> void:
 		and not _switching_weapon
 		and _weapon_type != WeaponType.BANDAGES
 		and _bandages_in_inventory > 0
+		and not _grabbing
 	):
 		_switching_weapon = true
 		await _bring_weapon_down()
@@ -356,6 +360,9 @@ func _input(event: InputEvent) -> void:
 		and _weapon_type == WeaponType.GUN
 		and _gun_ammo_in_magazine < 31
 		and _gun_ammo_in_inventory > 0
+		and not _switching_weapon
+		and not _grabbing
+		and not _reloading_gun
 	):
 		_reloading_gun = true
 		await _bring_weapon_down()
@@ -370,6 +377,8 @@ func _input(event: InputEvent) -> void:
 		if _health == 0.0:
 			return
 		_reloading_gun = false
+	if Input.is_action_pressed("use") and can_grab():
+		_grabbing = _aiming_at_grabbable
 
 
 func _bring_weapon_down() -> void:
@@ -968,7 +977,7 @@ func _update_camera_angular_velocity(delta: float) -> void:
 	_camera.rotation += _camera_angular_velocity * delta
 
 
-func _update_grabbing() -> void:
+func _update_grabbing(delta: float) -> void:
 	var query := PhysicsRayQueryParameters3D.new()
 	query.collision_mask = Global.PhysicsLayer.GRABBABLE
 	query.from = _camera.global_position
@@ -977,17 +986,23 @@ func _update_grabbing() -> void:
 	query.exclude = [get_rid()]
 	var collision := get_world_3d().direct_space_state.intersect_ray(query)
 	if collision and collision.collider is Grabbable:
-		var grabbable: Grabbable = collision.collider
-		_can_grab = true
-		if Input.is_action_pressed("use"):
-			if grabbable.get_type() == Grabbable.Type.AMMO:
+		_aiming_at_grabbable = collision.collider
+	else:
+		_aiming_at_grabbable = null
+
+	if _grabbing:
+		_grabbing.global_position = lerp(
+			_grabbing.global_position, global_position, delta * 20.0,
+		)
+		if _grabbing.global_position.distance_to(global_position) < 0.1:
+			if _grabbing.get_type() == Grabbable.Type.AMMO:
 				_gun_ammo_in_inventory += 30
-			elif grabbable.get_type() == Grabbable.Type.GRENADE:
+			elif _grabbing.get_type() == Grabbable.Type.GRENADE:
 				if _weapon_type == WeaponType.GRENADE and _grenade_count == 0:
 					_grenade.visible = true
 					_bring_weapon_up()
 				_grenade_count += 1
-			elif grabbable.get_type() == Grabbable.Type.BANDAGES:
+			elif _grabbing.get_type() == Grabbable.Type.BANDAGES:
 				if (
 					_weapon_type == WeaponType.BANDAGES
 					and _bandages_in_inventory == 0
@@ -997,9 +1012,8 @@ func _update_grabbing() -> void:
 				_bandages_in_inventory += 1
 			else:
 				push_error("Impossible state")
-			grabbable.queue_free()
-	else:
-		_can_grab = false
+			_grabbing.queue_free()
+			_grabbing = null
 
 
 func _update_muzzle_flash() -> void:
@@ -1085,4 +1099,8 @@ func _is_reloading() -> bool:
 
 
 func can_grab() -> bool:
-	return _can_grab
+	return _health > 0.0 and _aiming_at_grabbable and not _switching_weapon and not _grabbing
+
+
+func is_switching_weapon() -> bool:
+	return _switching_weapon

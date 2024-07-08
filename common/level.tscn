@@ -511,4 +511,4 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.602, 2.03321, 2.00118)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12.6719, -0.0737525, 1.85573)
 
 [node name="GrabbableGrenade3" parent="." instance=ExtResource("8_7vqsq")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.03838, -0.12172, -4.04242)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.516422, -0.12172, -1.80722)

@@ -38,8 +38,7 @@ func _process(delta: float) -> void:
 	_health_label.text = "Health %s%%" % ceil(global.get_player().get_health())
 	_update_sprint_bar(delta)
 	_update_ammo_label()
-	_shoot_crosshair.visible = not global.get_player().can_grab()
-	_grab_crosshair.visible = global.get_player().can_grab()
+	_update_crosshair()
 
 
 func _update_sprint_bar(delta: float) -> void:
@@ -82,6 +81,12 @@ func _update_ammo_label() -> void:
 					maxf(p.get_bandages_count() - a, 0)
 				]
 			)
+
+
+func _update_crosshair() -> void:
+	var p := global.get_player()
+	_shoot_crosshair.visible = not p.is_switching_weapon() and not p.can_grab()
+	_grab_crosshair.visible = not p.is_switching_weapon() and p.can_grab()
 
 
 func _unhandled_input(event: InputEvent) -> void:

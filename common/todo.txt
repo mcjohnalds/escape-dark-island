@@ -1,6 +1,7 @@
 Todo:
 
-- Disable enemy collider on death
+- Draw weapon in front
+- Allow weapon switch on grenade cooldown or reload
 - Bandages
 - Loot ammo, grenades, bandages
 - More buildings

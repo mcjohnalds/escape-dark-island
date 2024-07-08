@@ -17,13 +17,15 @@ var _animation_time := 0.0
 var _alive := true
 var _shrinking := false
 var _last_attack_at := -1000.0
-@onready var _health := max_health
 @onready var _navigation_agent: NavigationAgent3D = %NavigationAgent3D
 @onready var _eye: Node3D = %Eye
 @onready var _eye_cover: Node3D = %EyeCover
 @onready var _body: MeshInstance3D = %Body
+@onready var _collision_shape := %CollisionShape3D
 @onready var _initial_eye_position := _eye.position
 @onready var _initial_body_position := _body.position
+@onready var _health := max_health
+
 
 func _ready() -> void:
 	# Wait for the NavigationServer to sync
@@ -54,6 +56,7 @@ func damage(amount: float) -> void:
 	if _health < 0.0:
 		_health = 0.0
 		if _alive:
+			_collision_shape.disabled = true
 			_alive = false
 			_eye.visible = false
 			var eye_explosion: CustomParticlesCluster = eye_explosion_scene.instantiate()

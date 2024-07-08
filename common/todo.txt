@@ -1,6 +1,6 @@
 Todo:
 
-- Weapon transition animation
+- Grenade throw animation
 - Ammo
 - Reloading
 - Bandages
@@ -12,8 +12,8 @@ Todo:
 - Out of sprint animation indicator
 - Better grenade raycast
 - Generic PID
+- Jump camera bob
 
-- Jumping doesn't make the view snap in a weird way
 - Barrel gets red hot
 - Bug: gun fire rate not good because bullet firing might not match up with
   frame rate

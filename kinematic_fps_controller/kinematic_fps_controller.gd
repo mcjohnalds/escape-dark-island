@@ -26,6 +26,7 @@ enum WeaponType { GUN, GRENADE }
 @export var sprint_seconds := 3.0
 @export var sprint_regen_time := 6.0
 var sprint_energy := 1.0
+var _switching_weapon := false
 var _last_sprint_cooldown_at := -1000.0
 var _camera_linear_velocity := Vector3.ZERO
 var _camera_angular_velocity := Vector3.ZERO
@@ -41,6 +42,8 @@ var _grenade_throw_cooldown_remaining := 0.0
 @onready var _grenade: Node3D = %Grenade
 @onready var _target_weapon_position: Vector3 = _weapon.position
 @onready var _target_weapon_rotation: Vector3 = _weapon.rotation
+@onready var _initial_weapon_position: Vector3 = _weapon.position
+@onready var _initial_weapon_rotation: Vector3 = _weapon.rotation
 @onready var _weapon_last_position := _target_weapon_position
 @onready var _weapon_last_rotation := _target_weapon_rotation
 
@@ -280,14 +283,44 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_released("move_crouch"):
 		_uncrouch_audio_stream_player.stream = uncrouch_audios.pick_random()
 		_uncrouch_audio_stream_player.play()
-	if event.is_action_pressed("select_weapon_1"):
+	if event.is_action_pressed("select_weapon_1") and not _switching_weapon:
+		_switching_weapon = true
+		await _bring_weapon_down()
+		if _health == 0.0:
+			return
 		_weapon_type = WeaponType.GUN
 		_gun.visible = true
 		_grenade.visible = false
-	if event.is_action_pressed("select_weapon_2"):
+		await _bring_weapon_up()
+		if _health == 0.0:
+			return
+		_switching_weapon = false
+	if event.is_action_pressed("select_weapon_2") and not _switching_weapon:
+		_switching_weapon = true
+		await _bring_weapon_down()
+		if _health == 0.0:
+			return
 		_weapon_type = WeaponType.GRENADE
 		_gun.visible = false
 		_grenade.visible = true
+		await _bring_weapon_up()
+		if _health == 0.0:
+			return
+		_switching_weapon = false
+
+
+func _bring_weapon_down() -> void:
+		_target_weapon_position = _initial_weapon_position + Vector3.DOWN * 0.5
+		_target_weapon_rotation = (
+			_initial_weapon_rotation + Vector3(-TAU * 0.05, 0.0, 0.0)
+		)
+		await get_tree().create_timer(0.3).timeout
+
+
+func _bring_weapon_up() -> void:
+		_target_weapon_position = _initial_weapon_position
+		_target_weapon_rotation = _initial_weapon_rotation
+		await get_tree().create_timer(0.3).timeout
 
 
 func _update_movement(delta: float) -> void:
@@ -701,7 +734,7 @@ func _get_next_velocity(
 
 
 func _update_gun(delta: float) -> void:
-	if _health == 0.0 or _weapon_type != WeaponType.GUN:
+	if _health == 0.0 or _weapon_type != WeaponType.GUN or _switching_weapon:
 		return
 	var fire_bullet := (
 		Input.is_action_pressed("shoot")
@@ -766,19 +799,24 @@ func _update_gun(delta: float) -> void:
 
 
 func _update_grenade(delta: float) -> void:
-	if _health == 0.0 or _weapon_type != WeaponType.GRENADE:
+	if _health == 0.0 or _weapon_type != WeaponType.GRENADE or _switching_weapon:
 		return
 	if _grenade_throw_cooldown_remaining == 0.0 and Input.is_action_pressed("shoot"):
 		_grenade_throw_cooldown_remaining = 2.0
-		var grenade: ThrownGrenade = thrown_grenade_scene.instantiate()
-		grenade.position = _grenade.global_position - _camera.global_basis.x * 0.1
-		grenade.linear_velocity += -_camera.global_basis.z * 15.0
-		grenade.linear_velocity += _camera.global_basis.y * 3.0
-		grenade.linear_velocity += velocity
-		global.get_level().add_child(grenade)
+		var tg: ThrownGrenade = thrown_grenade_scene.instantiate()
+		tg.position = _grenade.global_position - _camera.global_basis.x * 0.1
+		tg.linear_velocity += -_camera.global_basis.z * 15.0
+		tg.linear_velocity += _camera.global_basis.y * 3.0
+		tg.linear_velocity += velocity
+		global.get_level().add_child(tg)
+		_grenade.visible = false
+		_bring_weapon_down()
 	if _grenade_throw_cooldown_remaining > 0.0:
 		_grenade_throw_cooldown_remaining -= delta
-	_grenade_throw_cooldown_remaining = maxf(0.0, _grenade_throw_cooldown_remaining)
+		if _grenade_throw_cooldown_remaining <= 0.0:
+			_grenade.visible = true
+			_bring_weapon_up()
+			_grenade_throw_cooldown_remaining = 0.0
 
 
 func _update_weapon_linear_velocity(delta: float) -> void:
@@ -786,7 +824,7 @@ func _update_weapon_linear_velocity(delta: float) -> void:
 	var error_delta := (_weapon_last_position - _weapon.position) / delta
 	var accel := weapon_linear_pid_kp * error + weapon_linear_pid_kd * error_delta
 	_weapon_linear_velocity += accel * delta
-	_weapon_linear_velocity = _weapon_linear_velocity.limit_length(0.1)
+	_weapon_linear_velocity = _weapon_linear_velocity
 	_weapon_last_position = _weapon.position
 	_weapon.position += _weapon_linear_velocity * delta
 
@@ -796,7 +834,7 @@ func _update_weapon_angular_velocity(delta: float) -> void:
 	var error_delta := (_weapon_last_rotation - _weapon.rotation) / delta
 	var accel := weapon_angular_pid_kp * error + weapon_angular_pid_kd * error_delta
 	_weapon_angular_velocity += accel * delta
-	_weapon_angular_velocity = _weapon_angular_velocity.limit_length(1.0)
+	_weapon_angular_velocity = _weapon_angular_velocity
 	_weapon_last_rotation = _weapon.rotation
 	_weapon.rotation += _weapon_angular_velocity * delta
 
@@ -843,7 +881,7 @@ func damage(amount: float) -> void:
 	)
 	if _health <= 0.0:
 		_health = 0.0
-		_target_weapon_position = _target_weapon_position + Vector3.DOWN * 0.1
+		_target_weapon_position = _initial_weapon_position + Vector3.DOWN * 0.1
 		_target_weapon_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
 		_fade_in_death_overlay()
 

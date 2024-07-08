@@ -1,7 +1,7 @@
 extends CharacterBody3D
 class_name KinematicFpsController
 
-enum WeaponType { GUN, GRENADE }
+enum WeaponType { GUN, GRENADE, BANDAGES }
 
 @export var thrown_grenade_scene: PackedScene
 @export var fire_rate := 11.0
@@ -36,14 +36,17 @@ var _last_camera_position := Vector3.ZERO
 var _last_camera_rotation := Vector3.ZERO
 var _weapon_type: WeaponType = WeaponType.GUN
 var _grenade_throw_cooldown_remaining := 0.0
+var _bandages_cooldown_remaining := 0.0
 var _grenade_count := 3
 var _gun_ammo_in_magazine := 31
 var _gun_ammo_in_inventory := 90
+var _bandages_in_inventory := 3
 var _reloading_gun := false
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
 @onready var _grenade: Node3D = %Grenade
+@onready var _bandages: Node3D = %Bandages
 @onready var _target_weapon_position: Vector3 = _weapon.position
 @onready var _target_weapon_rotation: Vector3 = _weapon.rotation
 @onready var _initial_weapon_position: Vector3 = _weapon.position
@@ -231,6 +234,7 @@ func _physics_process(delta: float) -> void:
 	_update_movement(delta)
 	_update_gun_shooting(delta)
 	_update_grenade(delta)
+	_update_bandages(delta)
 	_update_weapon_linear_velocity(delta)
 	_update_weapon_angular_velocity(delta)
 	# _camera.position = _get_step_bob_camera_offset() + _camera_kick_offset
@@ -300,6 +304,7 @@ func _input(event: InputEvent) -> void:
 		_weapon_type = WeaponType.GUN
 		_gun.visible = true
 		_grenade.visible = false
+		_bandages.visible = false
 		await _bring_weapon_up()
 		if _health == 0.0:
 			return
@@ -318,11 +323,37 @@ func _input(event: InputEvent) -> void:
 		_weapon_type = WeaponType.GRENADE
 		_gun.visible = false
 		_grenade.visible = true
+		_bandages.visible = false
 		await _bring_weapon_up()
 		if _health == 0.0:
 			return
 		_switching_weapon = false
-	if event.is_action_pressed("reload") and not _is_reloading() and _weapon_type == WeaponType.GUN and _gun_ammo_in_magazine < 31 and _gun_ammo_in_inventory > 0:
+	if (
+		event.is_action_pressed("select_weapon_3")
+		and not _is_reloading()
+		and not _switching_weapon
+		and _weapon_type != WeaponType.BANDAGES
+		and _bandages_in_inventory > 0
+	):
+		_switching_weapon = true
+		await _bring_weapon_down()
+		if _health == 0.0:
+			return
+		_weapon_type = WeaponType.BANDAGES
+		_gun.visible = false
+		_grenade.visible = false
+		_bandages.visible = true
+		await _bring_weapon_up()
+		if _health == 0.0:
+			return
+		_switching_weapon = false
+	if (
+		event.is_action_pressed("reload")
+		and not _is_reloading()
+		and _weapon_type == WeaponType.GUN
+		and _gun_ammo_in_magazine < 31
+		and _gun_ammo_in_inventory > 0
+	):
 		_reloading_gun = true
 		await _bring_weapon_down()
 		await get_tree().create_timer(1.7).timeout
@@ -860,6 +891,29 @@ func _update_grenade(delta: float) -> void:
 			_bring_weapon_up()
 
 
+func _update_bandages(delta: float) -> void:
+	if (
+		_health == 0.0
+		or _weapon_type != WeaponType.BANDAGES
+		or _switching_weapon
+	):
+		return
+	if can_use_bandages() and Input.is_action_pressed("shoot") and _health < max_health:
+		_bandages_in_inventory -= 1
+		_bandages_cooldown_remaining = 2.0
+		_bring_weapon_down()
+	if _bandages_cooldown_remaining > 0.0:
+		_bandages_cooldown_remaining -= delta
+		if _bandages_cooldown_remaining <= 0.0:
+			_bandages_cooldown_remaining = 0.0
+			_health += 50.0
+			if _health > max_health:
+				_health = max_health
+			if not can_use_bandages():
+				_bandages.visible = false
+			_bring_weapon_up()
+
+
 func _update_weapon_linear_velocity(delta: float) -> void:
 	var error := _target_weapon_position - _weapon.position
 	var error_delta := (_weapon_last_position - _weapon.position) / delta
@@ -953,6 +1007,19 @@ func can_throw_grenade() -> bool:
 		and _grenade_throw_cooldown_remaining == 0.0
 		and _grenade_count > 0
 	)
+
+
+func can_use_bandages() -> bool:
+	return (
+		_weapon_type == WeaponType.BANDAGES
+		and not _switching_weapon
+		and _bandages_cooldown_remaining == 0.0
+		and _bandages_in_inventory > 0
+	)
+
+
+func get_bandages_count() -> int:
+	return _bandages_in_inventory
 
 
 func get_grenade_count() ->	int:

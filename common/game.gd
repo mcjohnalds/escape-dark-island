@@ -69,6 +69,15 @@ func _update_ammo_label() -> void:
 					maxf(p.get_grenade_count() - a, 0)
 				]
 			)
+		KinematicFpsController.WeaponType.BANDAGES:
+			var a := 1 if p.can_use_bandages() else 0
+			_ammo_label.text = (
+				"%s/%s - Bandages"
+				% [
+					a,
+					maxf(p.get_bandages_count() - a, 0)
+				]
+			)
 
 
 func _unhandled_input(event: InputEvent) -> void:

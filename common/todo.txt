@@ -1,7 +1,5 @@
 Todo:
 
-- Draw weapon in front
-- Allow weapon switch on grenade cooldown or reload
 - Bandages
 - Loot ammo, grenades, bandages
 - More buildings
@@ -12,6 +10,8 @@ Todo:
 - Generic PID
 - Jump camera bob
 - Grenade throw animation
+- Draw weapon in front using viewport
+  - https://www.reddit.com/r/godot/comments/eb4ts6/how_to_render_fps_gun_over_main_camera/
 
 - Barrel gets red hot
 - Bug: gun fire rate not good because bullet firing might not match up with

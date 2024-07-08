@@ -1,4 +1,4 @@
-[gd_scene load_steps=57 format=3 uid="uid://2oxdgu03lnbk"]
+[gd_scene load_steps=58 format=3 uid="uid://2oxdgu03lnbk"]
 
 [ext_resource type="Script" path="res://kinematic_fps_controller/kinematic_fps_controller.gd" id="2_8r0nc"]
 [ext_resource type="PackedScene" uid="uid://7nghfugqxiqf" path="res://common/metal_impact.tscn" id="2_86agt"]
@@ -35,6 +35,7 @@
 [ext_resource type="Texture2D" uid="uid://nsrqdm2vli8a" path="res://addons/kenney_particle_pack/muzzle_02.png" id="31_q70iq"]
 [ext_resource type="Texture2D" uid="uid://8sg30406ftag" path="res://addons/kenney_particle_pack/magic_05.png" id="32_twhfu"]
 [ext_resource type="Texture2D" uid="uid://g6lgbd2idtjd" path="res://addons/kenney_particle_pack/smoke_08.png" id="33_7j817"]
+[ext_resource type="PackedScene" uid="uid://db8a8angieov0" path="res://common/bandages.tscn" id="36_yfbjp"]
 
 [sub_resource type="Curve" id="Curve_uibhf"]
 _data = [Vector2(0, 0.249071), 0.0, 0.0, 0, 0, Vector2(0.165854, 1), 0.0, 0.0, 0, 0, Vector2(0.273171, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
@@ -253,6 +254,13 @@ draw_pass_1 = SubResource("QuadMesh_cxfwg")
 unique_name_in_owner = true
 transform = Transform3D(0.998917, 0.00268531, 0.0464445, -0.00868368, 0.99155, 0.129438, -0.0457044, -0.129701, 0.990499, 0.076, 0.007, -0.042)
 visible = false
+
+[node name="Bandages" type="Node3D" parent="Head/Camera3D/Weapon"]
+unique_name_in_owner = true
+visible = false
+
+[node name="Model" parent="Head/Camera3D/Weapon/Bandages" instance=ExtResource("36_yfbjp")]
+transform = Transform3D(0.670507, 0.717213, 0.189806, -0.160834, -0.109233, 0.980918, 0.72426, -0.688239, 0.0421105, -0.0399644, 0.116153, -0.0382029)
 
 [node name="HeadRayCast" type="RayCast3D" parent="."]
 target_position = Vector3(2.08165e-12, 0.85, 2.08165e-12)

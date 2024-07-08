@@ -1,0 +1,26 @@
+[gd_scene load_steps=7 format=3 uid="uid://db8a8angieov0"]
+
+[ext_resource type="PackedScene" uid="uid://csfurv58dsfo1" path="res://common/bandages.blend" id="1_c35s2"]
+[ext_resource type="Texture2D" uid="uid://cq4jwiik2rnbm" path="res://common/bandages_diffuse.tga" id="2_ww1j2"]
+[ext_resource type="Texture2D" uid="uid://b0cvdwoesf3cy" path="res://common/bandages_bandages_occlusion_roughness_metallic.png" id="3_41y2w"]
+[ext_resource type="Texture2D" uid="uid://tvalwed8jyim" path="res://common/bandages_occlusion_roughness_metallic.tga" id="4_yscrg"]
+[ext_resource type="Texture2D" uid="uid://dgwobvllg2vxe" path="res://common/bandages_normal.tga" id="5_f5crt"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4ca5u"]
+resource_name = "01 - Default"
+albedo_texture = ExtResource("2_ww1j2")
+metallic_specular = 0.13
+metallic_texture = ExtResource("4_yscrg")
+metallic_texture_channel = 2
+roughness_texture = ExtResource("4_yscrg")
+roughness_texture_channel = 1
+normal_enabled = true
+normal_texture = ExtResource("5_f5crt")
+ao_enabled = true
+ao_texture = ExtResource("3_41y2w")
+
+[node name="Bandages" instance=ExtResource("1_c35s2")]
+
+[node name="Bandages" parent="." index="0"]
+transform = Transform3D(0, 0.0741818, 0, -0.0741818, 0, 0, 0, 0, 0.0741818, 0.0003093, 0.0100999, -0.000170634)
+surface_material_override/0 = SubResource("StandardMaterial3D_4ca5u")

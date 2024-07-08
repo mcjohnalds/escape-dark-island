@@ -20,7 +20,7 @@ func _ready() -> void:
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	# Deal with the bullshit that can happen when the browser takes away the
 	# game's pointer lock
 	if (
@@ -33,7 +33,18 @@ func _process(_delta: float) -> void:
 	if _mouse_mode_mismatch_count > 10:
 		_pause()
 	_health_label.text = "Health %s%%" % global.get_player().get_health()
-	_sprint_bar.size.x = global.get_player().sprint_energy * _sprint_bar_initial_size.x
+	_update_sprint_bar(delta)
+
+
+func _update_sprint_bar(delta: float) -> void:
+	var target := (
+		global.get_player().sprint_energy * _sprint_bar_initial_size.x
+	)
+	if global.get_player().sprint_energy > 0.0:
+		_sprint_bar.size.x = lerpf(_sprint_bar.size.x, target, delta * 3.0)
+	else:
+		_sprint_bar.size.x -= 20.0 * delta
+		_sprint_bar.size.x = maxf(_sprint_bar.size.x, 0.0)
 
 
 func _unhandled_input(event: InputEvent) -> void:

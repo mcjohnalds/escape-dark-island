@@ -403,7 +403,9 @@ func _update_movement(delta: float) -> void:
 		if is_landed_on_floor_this_frame:
 			next_step_cycle = 0.0
 
-	var is_sprint_regen_cooldown := Util.get_ticks_sec() - _last_sprint_cooldown_at < 3.0
+	var is_sprint_regen_cooldown := (
+		Util.get_ticks_sec() - _last_sprint_cooldown_at < 0.1
+	)
 
 	# Calculations happen above, side-effects happen below
 
@@ -440,6 +442,7 @@ func _update_movement(delta: float) -> void:
 	_head_bob_cycle_position = _get_next_head_bob_cycle_position(
 		horizontal_velocity, is_jumping, delta
 	)
+
 	if is_sprinting:
 		sprint_energy -= delta / sprint_seconds
 	elif not is_sprint_regen_cooldown:

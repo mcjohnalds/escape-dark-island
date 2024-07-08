@@ -12,6 +12,7 @@ radius = 0.0552876
 height = 0.211633
 
 [node name="ThrownGrenade" type="RigidBody3D"]
+collision_mask = 3
 physics_material_override = SubResource("PhysicsMaterial_1031f")
 script = ExtResource("1_is0ls")
 explosion_scene = ExtResource("2_yffwa")

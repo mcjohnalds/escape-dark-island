@@ -1,12 +1,6 @@
 extends Object
 class_name Util
 
-enum PhysicsLayer {
-	WALL = 1 << 0,
-	GROUND = 1 << 1,
-	PLAYER = 1 << 2,
-}
-
 
 static func is_compatibility_renderer() -> bool:
 	var rendering_method: String = (

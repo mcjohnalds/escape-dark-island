@@ -89,6 +89,7 @@ func _update_navigation(delta: float) -> void:
 		return
 
 	var query := PhysicsRayQueryParameters3D.new()
+	query.collision_mask = Global.PhysicsLayer.DEFAULT
 	query.from = _eye.global_position
 	query.to = global.get_player().global_position
 	query.exclude = [get_rid()]
@@ -194,6 +195,7 @@ func _update_attack() -> void:
 		return
 	# TODO: change to shapecast
 	var query := PhysicsRayQueryParameters3D.new()
+	query.collision_mask = Global.PhysicsLayer.DEFAULT
 	query.from = global_position + Vector3.UP
 	var max_attack_range := 2.0
 	query.to = global.get_player().global_position
@@ -255,6 +257,7 @@ func _get_best_retreat_location() -> Node3D:
 
 func _get_retreat_position_score(point: Vector3) -> float:
 	var query := PhysicsRayQueryParameters3D.new()
+	query.collision_mask = Global.PhysicsLayer.DEFAULT
 	query.from = point + Vector3.UP * 1.0
 	query.to = global.get_player().global_position
 	query.exclude = [get_rid()]

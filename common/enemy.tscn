@@ -32,6 +32,7 @@ rings = 32
 ring_segments = 16
 
 [node name="Enemy" type="CharacterBody3D" groups=["enemies"]]
+collision_mask = 3
 script = ExtResource("1_jxcny")
 black_goo_explosion_scene = ExtResource("2_315ry")
 eye_explosion_scene = ExtResource("3_nmfjf")

@@ -166,6 +166,7 @@ particles_anim_loop = false
 material = SubResource("StandardMaterial3D_k3mb8")
 
 [node name="KinematicFpsController" type="CharacterBody3D" groups=["player"]]
+collision_mask = 3
 floor_snap_length = 0.5
 script = ExtResource("2_8r0nc")
 thrown_grenade_scene = ExtResource("2_anmft")
@@ -264,9 +265,11 @@ transform = Transform3D(0.670507, 0.717213, 0.189806, -0.160834, -0.109233, 0.98
 
 [node name="HeadRayCast" type="RayCast3D" parent="."]
 target_position = Vector3(2.08165e-12, 0.85, 2.08165e-12)
+collision_mask = 3
 
 [node name="GroundRayCast" type="RayCast3D" parent="."]
 target_position = Vector3(2.08165e-12, -1.2, 2.08165e-12)
+collision_mask = 3
 
 [node name="SwimRayCast" type="RayCast3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.85, 2.08165e-12)

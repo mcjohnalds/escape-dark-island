@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://dlwjytiswql0g"]
+
+[ext_resource type="Script" path="res://common/grabbable.gd" id="1_7v7ac"]
+[ext_resource type="PackedScene" uid="uid://db8a8angieov0" path="res://common/bandages.tscn" id="2_8suek"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ogcs5"]
+radius = 0.058
+height = 0.228
+
+[node name="GrabbableBandages" type="StaticBody3D"]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_7v7ac")
+_type = 2
+
+[node name="Bandages" parent="." instance=ExtResource("2_8suek")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0088072, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 2.08165e-12, 2.08165e-12, 2.08165e-12)
+shape = SubResource("CapsuleShape3D_ogcs5")

@@ -1,6 +1,5 @@
 Todo:
 
-- Bandages
 - Loot ammo, grenades, bandages
 - More buildings
 - Furinture colliders

@@ -807,9 +807,10 @@ func _update_gun_shooting(delta: float) -> void:
 		_gun_ammo_in_magazine -= 1
 		_gun_last_fired_at = Util.get_ticks_sec()
 		var query := PhysicsRayQueryParameters3D.new()
+		query.collision_mask = (
+			Global.PhysicsLayer.DEFAULT | Global.PhysicsLayer.INTERIOR
+		)
 		query.from = _camera.global_position
-		# var q := _camera.global_basis.get_rotation_quaternion() * Quaternion.from_euler((_target_weapon_rotation - _weapon.rotation) * Vector3(2.0, 10.0, 0.0)).normalized()
-		# query.to = _camera.global_position + q * Vector3.FORWARD * max_bullet_range
 		var dir := -_weapon.global_basis.z
 		query.to = _camera.global_position + dir * max_bullet_range
 		query.exclude = [get_rid()]

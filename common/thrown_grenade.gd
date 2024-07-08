@@ -21,6 +21,7 @@ func _explode() -> void:
 	targets.append(get_tree().get_first_node_in_group("player"))
 	for target: Node3D in targets:
 		var query := PhysicsRayQueryParameters3D.new()
+		query.collision_mask = Global.PhysicsLayer.DEFAULT
 		query.from = global_position + center_of_mass
 		query.to = target.global_position
 		query.exclude = [self.get_rid()]

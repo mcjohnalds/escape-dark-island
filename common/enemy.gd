@@ -71,19 +71,14 @@ func damage(amount: float) -> void:
 			body_explosion.emitting = true
 			get_parent().add_child(body_explosion)
 			await get_tree().create_timer(body_explosion.get_max_lifetime()).timeout
-	if _alive and _damage_taken_since_last_state_transition > retreat_damage_threshold:
-		if _state == State.ATTACK:
-			if _get_best_retreat_location():
-				_transition_to_retreat_state()
-			else:
-				_transition_to_attack_state()
-		if _state == State.RETREAT:
-			var d := global_position.distance_to(
-				global.get_player().global_position
-			)
-			var close := d < _navigation_agent.target_desired_distance
-			if close:
-				_transition_to_attack_state()
+	if (
+		_alive
+		and _damage_taken_since_last_state_transition
+			> retreat_damage_threshold
+		and _state == State.ATTACK
+		and _get_best_retreat_location()
+	):
+		_transition_to_retreat_state()
 
 
 func _update_navigation(delta: float) -> void:
@@ -131,7 +126,7 @@ func _update_navigation(delta: float) -> void:
 		else:
 			_transition_to_attack_state()
 	var target_dir := Vector3.ZERO
-	if not _navigation_agent.is_navigation_finished() and (not can_see_player or global_position.distance_to(global.get_player().global_position) > 2.0):
+	if not _navigation_agent.is_navigation_finished() and (not can_see_player or _state != State.ATTACK or global_position.distance_to(global.get_player().global_position) > 2.0):
 		target_dir = global_position.direction_to(
 			_navigation_agent.get_next_path_position()
 		)

@@ -11,6 +11,7 @@ Todo:
 - More buildings
 - Furinture colliders
 - Out of sprint animation indicator
+- Better grenade raycast
 
 - Jumping doesn't make the view snap in a weird way
 - Barrel gets red hot

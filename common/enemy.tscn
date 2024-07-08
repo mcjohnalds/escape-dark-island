@@ -31,7 +31,7 @@ material = ExtResource("2_uq58v")
 rings = 32
 ring_segments = 16
 
-[node name="Enemy" type="CharacterBody3D"]
+[node name="Enemy" type="CharacterBody3D" groups=["enemies"]]
 script = ExtResource("1_jxcny")
 black_goo_explosion_scene = ExtResource("2_315ry")
 eye_explosion_scene = ExtResource("3_nmfjf")

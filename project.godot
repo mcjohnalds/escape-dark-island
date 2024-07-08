@@ -47,6 +47,7 @@ debug_arrow=""
 blood_overlay=""
 death_overlay=""
 level=""
+enemies=""
 
 [gui]
 

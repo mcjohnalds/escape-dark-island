@@ -32,7 +32,7 @@ func _process(delta: float) -> void:
 		_mouse_mode_mismatch_count = 0
 	if _mouse_mode_mismatch_count > 10:
 		_pause()
-	_health_label.text = "Health %s%%" % global.get_player().get_health()
+	_health_label.text = "Health %s%%" % ceil(global.get_player().get_health())
 	_update_sprint_bar(delta)
 
 

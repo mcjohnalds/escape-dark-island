@@ -13,6 +13,8 @@ var _mouse_mode_mismatch_count := 0
 @onready var _sprint_bar: ColorRect = %SprintBar
 @onready var _sprint_bar_initial_size: Vector2 = _sprint_bar.size
 @onready var _ammo_label: Label = %AmmoLabel
+@onready var _shoot_crosshair: Control = %ShootCrosshair
+@onready var _grab_crosshair: Control = %GrabCrosshair
 
 
 func _ready() -> void:
@@ -36,6 +38,8 @@ func _process(delta: float) -> void:
 	_health_label.text = "Health %s%%" % ceil(global.get_player().get_health())
 	_update_sprint_bar(delta)
 	_update_ammo_label()
+	_shoot_crosshair.visible = not global.get_player().can_grab()
+	_grab_crosshair.visible = global.get_player().can_grab()
 
 
 func _update_sprint_bar(delta: float) -> void:

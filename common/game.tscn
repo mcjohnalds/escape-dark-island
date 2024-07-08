@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://d1y8jdicca0ja"]
+[gd_scene load_steps=15 format=3 uid="uid://d1y8jdicca0ja"]
 
 [ext_resource type="Script" path="res://common/game.gd" id="1_nixut"]
 [ext_resource type="PackedScene" uid="uid://dsinasa0vu1ih" path="res://common/level.tscn" id="2_m3jn1"]
@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://7dmlqfg2dx63" path="res://common/blood_vignette.webp" id="5_8vg5e"]
 [ext_resource type="Script" path="res://common/blood_overlay.gd" id="6_h3boe"]
 [ext_resource type="PackedScene" uid="uid://ff3oqsj7dv02" path="res://ui/custom_label.tscn" id="6_pjl4h"]
+[ext_resource type="Texture2D" uid="uid://tm6l4hjbmsy6" path="res://ui/grab_crosshair.svg" id="8_k4ypl"]
 
 [sub_resource type="Gradient" id="Gradient_tuorp"]
 colors = PackedColorArray(0, 0, 0, 0.043, 1, 1, 1, 0.059)
@@ -99,7 +100,8 @@ grow_vertical = 0
 text = "30/90 - 5.56 mm"
 horizontal_alignment = 2
 
-[node name="Crosshair" type="TextureRect" parent="."]
+[node name="ShootCrosshair" type="TextureRect" parent="."]
+unique_name_in_owner = true
 material = SubResource("CanvasItemMaterial_bqx4t")
 anchors_preset = 8
 anchor_left = 0.5
@@ -113,6 +115,24 @@ offset_bottom = 11.0
 grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("3_gck2x")
+expand_mode = 1
+
+[node name="GrabCrosshair" type="TextureRect" parent="."]
+unique_name_in_owner = true
+visible = false
+material = SubResource("CanvasItemMaterial_bqx4t")
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -11.0
+offset_top = -11.0
+offset_right = 11.0
+offset_bottom = 11.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("8_k4ypl")
 expand_mode = 1
 
 [node name="DeathOverlay" type="ColorRect" parent="." groups=["death_overlay"]]

@@ -1,12 +1,9 @@
 Todo:
 
-- Loot ammo, grenades, bandages
 - More buildings
-- Furinture colliders
 - Textures
-- Out of sprint animation indicator
+- Out of sprint UI animation indicator
 - Better grenade raycast
-- Generic PID
 - Jump camera bob
 - Grenade throw animation
 - Draw weapon in front using viewport
@@ -18,10 +15,11 @@ Todo:
 
 - Make godot-snappy work with box colliders
 
+- Post game jam
+  - Generic PID
+
 - Weapon
   - Shells
-  - Kick
-  - Inaccuracy
   - More impact effects
   - Make weapon bob with player breathing
   - Overwatch-like weapon bob https://www.youtube.com/watch?v=7Dga-UqdBR8

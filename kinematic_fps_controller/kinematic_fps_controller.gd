@@ -6,6 +6,7 @@ enum WeaponType { GUN, GRENADE, BANDAGES }
 @export var thrown_grenade_scene: PackedScene
 @export var fire_rate := 11.0
 @export var max_bullet_range := 1000.0
+@export var max_grab_range := 2.0
 @export var goo_bullet_impact_scene: PackedScene
 @export var default_bullet_impact_scene: PackedScene
 @export var tracer_scene: PackedScene
@@ -37,11 +38,12 @@ var _last_camera_rotation := Vector3.ZERO
 var _weapon_type: WeaponType = WeaponType.GUN
 var _grenade_throw_cooldown_remaining := 0.0
 var _bandages_cooldown_remaining := 0.0
-var _grenade_count := 3
+var _grenade_count := 0
 var _gun_ammo_in_magazine := 31
-var _gun_ammo_in_inventory := 90
-var _bandages_in_inventory := 3
+var _gun_ammo_in_inventory := 0
+var _bandages_in_inventory := 0
 var _reloading_gun := false
+var _can_grab := false
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -258,6 +260,7 @@ func _physics_process(delta: float) -> void:
 	)
 	_update_camera_linear_velocity(delta)
 	_update_camera_angular_velocity(delta)
+	_update_grabbing()
 
 
 func _input(event: InputEvent) -> void:
@@ -889,7 +892,7 @@ func _update_grenade(delta: float) -> void:
 			_grenade_throw_cooldown_remaining = 0.0
 			if can_throw_grenade():
 				_grenade.visible = true
-			_bring_weapon_up()
+				_bring_weapon_up()
 
 
 func _update_bandages(delta: float) -> void:
@@ -899,7 +902,11 @@ func _update_bandages(delta: float) -> void:
 		or _switching_weapon
 	):
 		return
-	if can_use_bandages() and Input.is_action_pressed("shoot") and _health < max_health:
+	if (
+		can_use_bandages()
+		and Input.is_action_pressed("shoot")
+		and _health < max_health
+	):
 		_bandages_in_inventory -= 1
 		_bandages_cooldown_remaining = 2.0
 		_bring_weapon_down()
@@ -910,15 +917,17 @@ func _update_bandages(delta: float) -> void:
 			_health += 50.0
 			if _health > max_health:
 				_health = max_health
-			if not can_use_bandages():
-				_bandages.visible = false
-			_bring_weapon_up()
+			if can_use_bandages():
+				_bandages.visible = true
+				_bring_weapon_up()
 
 
 func _update_weapon_linear_velocity(delta: float) -> void:
 	var error := _target_weapon_position - _weapon.position
 	var error_delta := (_weapon_last_position - _weapon.position) / delta
-	var accel := weapon_linear_pid_kp * error + weapon_linear_pid_kd * error_delta
+	var accel := (
+		weapon_linear_pid_kp * error + weapon_linear_pid_kd * error_delta
+	)
 	_weapon_linear_velocity += accel * delta
 	_weapon_linear_velocity = _weapon_linear_velocity
 	_weapon_last_position = _weapon.position
@@ -928,7 +937,9 @@ func _update_weapon_linear_velocity(delta: float) -> void:
 func _update_weapon_angular_velocity(delta: float) -> void:
 	var error := _target_weapon_rotation - _weapon.rotation
 	var error_delta := (_weapon_last_rotation - _weapon.rotation) / delta
-	var accel := weapon_angular_pid_kp * error + weapon_angular_pid_kd * error_delta
+	var accel := (
+		weapon_angular_pid_kp * error + weapon_angular_pid_kd * error_delta
+	)
 	_weapon_angular_velocity += accel * delta
 	_weapon_angular_velocity = _weapon_angular_velocity
 	_weapon_last_rotation = _weapon.rotation
@@ -938,7 +949,9 @@ func _update_weapon_angular_velocity(delta: float) -> void:
 func _update_camera_linear_velocity(delta: float) -> void:
 	var error := -_camera.position
 	var error_delta := (_last_camera_position - _camera.position) / delta
-	var accel := camera_linear_pid_kp * error + camera_linear_pid_kd * error_delta
+	var accel := (
+		camera_linear_pid_kp * error + camera_linear_pid_kd * error_delta
+	)
 	_camera_linear_velocity += accel * delta
 	_last_camera_position = _camera.position
 	_camera.position += _camera_linear_velocity * delta
@@ -947,10 +960,46 @@ func _update_camera_linear_velocity(delta: float) -> void:
 func _update_camera_angular_velocity(delta: float) -> void:
 	var error := -_camera.rotation
 	var error_delta := (_last_camera_rotation - _camera.rotation) / delta
-	var accel := camera_angular_pid_kp * error + camera_angular_pid_kd * error_delta
+	var accel := (
+		camera_angular_pid_kp * error + camera_angular_pid_kd * error_delta
+	)
 	_camera_angular_velocity += accel * delta
 	_last_camera_rotation = _camera.rotation
 	_camera.rotation += _camera_angular_velocity * delta
+
+
+func _update_grabbing() -> void:
+	var query := PhysicsRayQueryParameters3D.new()
+	query.collision_mask = Global.PhysicsLayer.GRABBABLE
+	query.from = _camera.global_position
+	var dir := -_camera.global_basis.z
+	query.to = _camera.global_position + max_grab_range * dir
+	query.exclude = [get_rid()]
+	var collision := get_world_3d().direct_space_state.intersect_ray(query)
+	if collision and collision.collider is Grabbable:
+		var grabbable: Grabbable = collision.collider
+		_can_grab = true
+		if Input.is_action_pressed("use"):
+			if grabbable.get_type() == Grabbable.Type.AMMO:
+				_gun_ammo_in_inventory += 30
+			elif grabbable.get_type() == Grabbable.Type.GRENADE:
+				if _weapon_type == WeaponType.GRENADE and _grenade_count == 0:
+					_grenade.visible = true
+					_bring_weapon_up()
+				_grenade_count += 1
+			elif grabbable.get_type() == Grabbable.Type.BANDAGES:
+				if (
+					_weapon_type == WeaponType.BANDAGES
+					and _bandages_in_inventory == 0
+				):
+					_bandages.visible = true
+					_bring_weapon_up()
+				_bandages_in_inventory += 1
+			else:
+				push_error("Impossible state")
+			grabbable.queue_free()
+	else:
+		_can_grab = false
 
 
 func _update_muzzle_flash() -> void:
@@ -1033,3 +1082,7 @@ func get_weapon_type() -> WeaponType:
 
 func _is_reloading() -> bool:
 	return _reloading_gun or _grenade_throw_cooldown_remaining > 0.0
+
+
+func can_grab() -> bool:
+	return _can_grab

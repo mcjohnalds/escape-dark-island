@@ -3,6 +3,7 @@ class_name KinematicFpsController
 
 enum WeaponType { GUN, GRENADE, BANDAGES }
 
+@export var melee_duration := 0.6
 @export var thrown_grenade_scene: PackedScene
 @export var fire_rate := 11.0
 @export var max_bullet_range := 1000.0
@@ -45,6 +46,7 @@ var _bandages_in_inventory := 0
 var _reloading_gun := false
 var _aiming_at_grabbable: Grabbable = null
 var _grabbing: Grabbable = null
+var _last_melee_at := -1000.0
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -226,6 +228,7 @@ var _quake_camera_tilt_ratio := 0.0
 @onready var _muzzle_flashes: Array[MeshInstance3D] = [
 	%MuzzleFlash1, %MuzzleFlash2, %MuzzleFlash3,
 ]
+@onready var _initial_weapon_linear_pid_kd := weapon_linear_pid_kd
 
 
 func _ready() -> void:
@@ -262,6 +265,7 @@ func _physics_process(delta: float) -> void:
 	_update_camera_linear_velocity(delta)
 	_update_camera_angular_velocity(delta)
 	_update_grabbing(delta)
+	_update_melee()
 
 
 func _input(event: InputEvent) -> void:
@@ -363,6 +367,7 @@ func _input(event: InputEvent) -> void:
 		and not _switching_weapon
 		and not _grabbing
 		and not _reloading_gun
+		and not is_meleeing()
 	):
 		_reloading_gun = true
 		await _bring_weapon_down()
@@ -379,6 +384,8 @@ func _input(event: InputEvent) -> void:
 		_reloading_gun = false
 	if Input.is_action_pressed("use") and can_grab():
 		_grabbing = _aiming_at_grabbable
+	if Input.is_action_pressed("melee") and can_melee():
+		_last_melee_at = Util.get_ticks_sec()
 
 
 func _bring_weapon_down() -> void:
@@ -814,6 +821,7 @@ func _update_gun_shooting(delta: float) -> void:
 		and not _switching_weapon
 		and Input.is_action_pressed("shoot")
 		and Util.get_ticks_sec() - _gun_last_fired_at > 1.0 / fire_rate
+		and not is_meleeing()
 	)
 	if fire_bullet:
 		_gun_ammo_in_magazine -= 1
@@ -882,6 +890,7 @@ func _update_grenade(delta: float) -> void:
 		_health == 0.0
 		or _weapon_type != WeaponType.GRENADE
 		or _switching_weapon
+		or is_meleeing()
 	):
 		return
 	if can_throw_grenade() and Input.is_action_pressed("shoot"):
@@ -909,6 +918,7 @@ func _update_bandages(delta: float) -> void:
 		_health == 0.0
 		or _weapon_type != WeaponType.BANDAGES
 		or _switching_weapon
+		or is_meleeing()
 	):
 		return
 	if (
@@ -1016,6 +1026,26 @@ func _update_grabbing(delta: float) -> void:
 			_grabbing = null
 
 
+func _update_melee() -> void:
+	var d := Util.get_ticks_sec() - _last_melee_at
+	if d < melee_duration:
+		# TODO: a state machine would work better
+		if d <= melee_duration * 0.2:
+			_target_weapon_position = _initial_weapon_position
+			_target_weapon_position.z += 0.3
+		if d > melee_duration * 0.3 and d <= melee_duration * 0.7:
+			weapon_linear_pid_kd = _initial_weapon_linear_pid_kd * 0.4
+			_target_weapon_position = _initial_weapon_position
+			_target_weapon_position.x -= 0.3
+			_target_weapon_position.y += 0.2
+			_target_weapon_position.z -= 0.4
+			_target_weapon_rotation = Vector3(0.0, 0.1 * TAU, 0.1 * TAU)
+		if d > melee_duration * 0.7:
+			weapon_linear_pid_kd = _initial_weapon_linear_pid_kd
+			_target_weapon_position = _initial_weapon_position
+			_target_weapon_rotation = _initial_weapon_rotation
+
+
 func _update_muzzle_flash() -> void:
 	for muzzle_flash in _muzzle_flashes:
 		var material: StandardMaterial3D = muzzle_flash.material_override
@@ -1099,8 +1129,16 @@ func _is_reloading() -> bool:
 
 
 func can_grab() -> bool:
-	return _health > 0.0 and _aiming_at_grabbable and not _switching_weapon and not _grabbing
+	return _health > 0.0 and _aiming_at_grabbable and not _switching_weapon and not _grabbing and not is_meleeing()
 
 
 func is_switching_weapon() -> bool:
 	return _switching_weapon
+
+
+func can_melee() -> bool:
+	return Util.get_ticks_sec() - _last_melee_at > melee_duration and _health > 0.0 and not _switching_weapon and not _grabbing 
+
+
+func is_meleeing() -> bool:
+	return Util.get_ticks_sec() - _last_melee_at <= melee_duration

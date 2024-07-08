@@ -85,8 +85,8 @@ func _update_ammo_label() -> void:
 
 func _update_crosshair() -> void:
 	var p := global.get_player()
-	_shoot_crosshair.visible = not p.is_switching_weapon() and not p.can_grab()
-	_grab_crosshair.visible = not p.is_switching_weapon() and p.can_grab()
+	_shoot_crosshair.visible = not p.is_switching_weapon() and not p.is_meleeing() and not p.can_grab()
+	_grab_crosshair.visible = not p.is_switching_weapon() and not p.is_meleeing() and p.can_grab()
 
 
 func _unhandled_input(event: InputEvent) -> void:

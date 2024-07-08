@@ -1,7 +1,8 @@
 Todo:
 
-- More buildings
 - Melee
+- Give a "+1 bandage" message
+- More buildings
 - Textures
 - Out of sprint UI animation indicator
 - Better grenade raycast

@@ -1,6 +1,5 @@
 Todo:
 
-- Grenade throw animation
 - Ammo
 - Reloading
 - Bandages
@@ -13,6 +12,7 @@ Todo:
 - Better grenade raycast
 - Generic PID
 - Jump camera bob
+- Grenade throw animation
 
 - Barrel gets red hot
 - Bug: gun fire rate not good because bullet firing might not match up with

@@ -85,6 +85,20 @@ grow_horizontal = 1
 grow_vertical = 0
 text = "Health 100%"
 
+[node name="AmmoLabel" parent="." instance=ExtResource("6_pjl4h")]
+unique_name_in_owner = true
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+offset_left = -101.0
+offset_top = -29.0
+offset_right = -8.0
+offset_bottom = -8.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "30/90 - 5.56 mm"
+horizontal_alignment = 2
+
 [node name="Crosshair" type="TextureRect" parent="."]
 material = SubResource("CanvasItemMaterial_bqx4t")
 anchors_preset = 8

@@ -36,6 +36,9 @@ var _last_camera_position := Vector3.ZERO
 var _last_camera_rotation := Vector3.ZERO
 var _weapon_type: WeaponType = WeaponType.GUN
 var _grenade_throw_cooldown_remaining := 0.0
+var _grenade_count := 3
+var _gun_ammo_in_magazine := 30
+var _gun_ammo := 90
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -283,7 +286,11 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_released("move_crouch"):
 		_uncrouch_audio_stream_player.stream = uncrouch_audios.pick_random()
 		_uncrouch_audio_stream_player.play()
-	if event.is_action_pressed("select_weapon_1") and not _switching_weapon:
+	if (
+		event.is_action_pressed("select_weapon_1")
+		and not _switching_weapon
+		and _weapon_type != WeaponType.GUN
+	):
 		_switching_weapon = true
 		await _bring_weapon_down()
 		if _health == 0.0:
@@ -295,7 +302,12 @@ func _input(event: InputEvent) -> void:
 		if _health == 0.0:
 			return
 		_switching_weapon = false
-	if event.is_action_pressed("select_weapon_2") and not _switching_weapon:
+	if (
+		event.is_action_pressed("select_weapon_2")
+		and not _switching_weapon
+		and _weapon_type != WeaponType.GRENADE
+		and _grenade_count > 0
+	):
 		_switching_weapon = true
 		await _bring_weapon_down()
 		if _health == 0.0:
@@ -794,14 +806,21 @@ func _update_gun(delta: float) -> void:
 			if collision.collider is Enemy:
 				var enemy: Enemy = collision.collider
 				enemy.damage(1.0)
-	_smoke.emitting = Util.get_ticks_sec() - _gun_last_fired_at < smoke_lifetime
+	_smoke.emitting = (
+		Util.get_ticks_sec() - _gun_last_fired_at < smoke_lifetime
+	)
 	_update_muzzle_flash()
 
 
 func _update_grenade(delta: float) -> void:
-	if _health == 0.0 or _weapon_type != WeaponType.GRENADE or _switching_weapon:
+	if (
+		_health == 0.0
+		or _weapon_type != WeaponType.GRENADE
+		or _switching_weapon
+	):
 		return
-	if _grenade_throw_cooldown_remaining == 0.0 and Input.is_action_pressed("shoot"):
+	if can_throw_grenade() and Input.is_action_pressed("shoot"):
+		_grenade_count -= 1
 		_grenade_throw_cooldown_remaining = 2.0
 		var tg: ThrownGrenade = thrown_grenade_scene.instantiate()
 		tg.position = _grenade.global_position - _camera.global_basis.x * 0.1
@@ -814,9 +833,10 @@ func _update_grenade(delta: float) -> void:
 	if _grenade_throw_cooldown_remaining > 0.0:
 		_grenade_throw_cooldown_remaining -= delta
 		if _grenade_throw_cooldown_remaining <= 0.0:
-			_grenade.visible = true
-			_bring_weapon_up()
 			_grenade_throw_cooldown_remaining = 0.0
+			if can_throw_grenade():
+				_grenade.visible = true
+			_bring_weapon_up()
 
 
 func _update_weapon_linear_velocity(delta: float) -> void:
@@ -888,4 +908,35 @@ func damage(amount: float) -> void:
 
 func _fade_in_death_overlay() -> void:
 	var tween := create_tween()
-	tween.tween_property(global.get_death_overlay(), "modulate:a", 1.0, 10.0).set_trans(Tween.TRANS_EXPO).set_ease(Tween.EASE_OUT)
+	(
+		tween.tween_property(
+			global.get_death_overlay(), "modulate:a", 1.0, 10.0
+		)
+			.set_trans(Tween.TRANS_EXPO)
+			.set_ease(Tween.EASE_OUT)
+	)
+
+
+func get_gun_ammo_in_magazine() -> int:
+	return _gun_ammo_in_magazine
+
+
+func get_gun_ammo() -> int:
+	return _gun_ammo
+
+
+func can_throw_grenade() -> bool:
+	return (
+		_weapon_type == WeaponType.GRENADE
+		and not _switching_weapon
+		and _grenade_throw_cooldown_remaining == 0.0
+		and _grenade_count > 0
+	)
+
+
+func get_grenade_count() ->	int:
+	return _grenade_count
+
+
+func get_weapon_type() -> WeaponType:
+	return _weapon_type

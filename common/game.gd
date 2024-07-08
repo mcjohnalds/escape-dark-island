@@ -12,6 +12,7 @@ var _mouse_mode_mismatch_count := 0
 @onready var _health_label: Label = %HealthLabel
 @onready var _sprint_bar: ColorRect = %SprintBar
 @onready var _sprint_bar_initial_size: Vector2 = _sprint_bar.size
+@onready var _ammo_label: Label = %AmmoLabel
 
 
 func _ready() -> void:
@@ -34,6 +35,7 @@ func _process(delta: float) -> void:
 		_pause()
 	_health_label.text = "Health %s%%" % ceil(global.get_player().get_health())
 	_update_sprint_bar(delta)
+	_update_ammo_label()
 
 
 func _update_sprint_bar(delta: float) -> void:
@@ -45,6 +47,28 @@ func _update_sprint_bar(delta: float) -> void:
 	else:
 		_sprint_bar.size.x -= 20.0 * delta
 		_sprint_bar.size.x = maxf(_sprint_bar.size.x, 0.0)
+
+
+func _update_ammo_label() -> void:
+	var p := global.get_player()
+	match p.get_weapon_type():
+		KinematicFpsController.WeaponType.GUN:
+			_ammo_label.text = (
+				"%s/%s - 5.56 mm"
+				% [
+					p.get_gun_ammo_in_magazine(),
+					p.get_gun_ammo() - p.get_gun_ammo_in_magazine()
+				]
+			)
+		KinematicFpsController.WeaponType.GRENADE:
+			var a := 1 if p.can_throw_grenade() else 0
+			_ammo_label.text = (
+				"%s/%s - Mk 2"
+				% [
+					a,
+					maxf(p.get_grenade_count() - a, 0)
+				]
+			)
 
 
 func _unhandled_input(event: InputEvent) -> void:

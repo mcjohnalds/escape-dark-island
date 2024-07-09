@@ -2,6 +2,8 @@ extends CharacterBody3D
 class_name KinematicFpsController
 
 enum WeaponType { GUN, GRENADE, BANDAGES }
+signal started_sleeping
+signal finished_sleeping
 
 @export var melee_duration := 0.4
 @export var melee_range := 2.0
@@ -45,10 +47,11 @@ var _gun_ammo_in_magazine := 31
 var _gun_ammo_in_inventory := 0
 var _bandages_in_inventory := 0
 var _reloading_gun := false
-var _aiming_at_grabbable: Grabbable = null
+var _aiming_at_interactable: Node3D = null
 var _grabbing: Grabbable = null
 var _last_melee_at := -1000.0
 var _has_melee_applied_damage := false
+var _sleeping := false
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -266,7 +269,7 @@ func _physics_process(delta: float) -> void:
 	)
 	_update_camera_linear_velocity(delta)
 	_update_camera_angular_velocity(delta)
-	_update_grabbing(delta)
+	_update_interaction(delta)
 	_update_melee()
 
 
@@ -307,6 +310,7 @@ func _input(event: InputEvent) -> void:
 		and not _switching_weapon
 		and _weapon_type != WeaponType.GUN
 		and not _grabbing
+		and not _sleeping
 	):
 		_switching_weapon = true
 		await _bring_weapon_down()
@@ -327,6 +331,7 @@ func _input(event: InputEvent) -> void:
 		and _weapon_type != WeaponType.GRENADE
 		and _grenade_count > 0
 		and not _grabbing
+		and not _sleeping
 	):
 		_switching_weapon = true
 		await _bring_weapon_down()
@@ -347,6 +352,7 @@ func _input(event: InputEvent) -> void:
 		and _weapon_type != WeaponType.BANDAGES
 		and _bandages_in_inventory > 0
 		and not _grabbing
+		and not _sleeping
 	):
 		_switching_weapon = true
 		await _bring_weapon_down()
@@ -370,6 +376,7 @@ func _input(event: InputEvent) -> void:
 		and not _grabbing
 		and not _reloading_gun
 		and not is_meleeing()
+		and not _sleeping
 	):
 		_reloading_gun = true
 		await _bring_weapon_down()
@@ -384,8 +391,19 @@ func _input(event: InputEvent) -> void:
 		if _health == 0.0:
 			return
 		_reloading_gun = false
-	if Input.is_action_pressed("use") and can_grab():
-		_grabbing = _aiming_at_grabbable
+	if Input.is_action_pressed("use") and can_use():
+		if _aiming_at_interactable is Grabbable:
+			_grabbing = _aiming_at_interactable
+		elif _aiming_at_interactable is Bed:
+			_sleeping = true
+			started_sleeping.emit()
+			await get_tree().create_timer(1.0).timeout
+			_sleeping = false
+			_health = max_health
+			sprint_energy = 1.0
+			finished_sleeping.emit()
+		else:
+			push_error("Unexpected state")
 	if Input.is_action_pressed("melee") and can_melee():
 		_last_melee_at = Util.get_ticks_sec()
 
@@ -410,7 +428,11 @@ func _update_movement(delta: float) -> void:
 	var input_jump := false
 	var input_crouch := false
 	var input_sprint := false
-	if Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED and _health > 0.0:
+	if (
+		Input.get_mouse_mode() == Input.MOUSE_MODE_CAPTURED
+		and _health > 0.0
+		and not _sleeping
+	):
 		if Input.is_action_just_pressed("move_fly_mode"):
 			_is_flying = not _is_flying
 		input_horizontal = Input.get_vector(
@@ -826,6 +848,7 @@ func _update_gun_shooting(delta: float) -> void:
 		and Input.is_action_pressed("shoot")
 		and Util.get_ticks_sec() - _gun_last_fired_at > 1.0 / fire_rate
 		and not is_meleeing()
+		and not _sleeping
 	)
 	if fire_bullet:
 		_gun_ammo_in_magazine -= 1
@@ -895,6 +918,7 @@ func _update_grenade(delta: float) -> void:
 		or _weapon_type != WeaponType.GRENADE
 		or _switching_weapon
 		or is_meleeing()
+		or _sleeping
 	):
 		return
 	if can_throw_grenade() and Input.is_action_pressed("shoot"):
@@ -923,6 +947,7 @@ func _update_bandages(delta: float) -> void:
 		or _weapon_type != WeaponType.BANDAGES
 		or _switching_weapon
 		or is_meleeing()
+		or _sleeping
 	):
 		return
 	if (
@@ -991,18 +1016,21 @@ func _update_camera_angular_velocity(delta: float) -> void:
 	_camera.rotation += _camera_angular_velocity * delta
 
 
-func _update_grabbing(delta: float) -> void:
+func _update_interaction(delta: float) -> void:
 	var query := PhysicsRayQueryParameters3D.new()
-	query.collision_mask = Global.PhysicsLayer.GRABBABLE
+	query.collision_mask = Global.PhysicsLayer.INTERACTABLE
 	query.from = _camera.global_position
 	var dir := -_camera.global_basis.z
 	query.to = _camera.global_position + max_grab_range * dir
 	query.exclude = [get_rid()]
 	var collision := get_world_3d().direct_space_state.intersect_ray(query)
-	if collision and collision.collider is Grabbable:
-		_aiming_at_grabbable = collision.collider
+	if (
+		collision
+		and (collision.collider is Grabbable or collision.collider is Bed)
+	):
+		_aiming_at_interactable = collision.collider
 	else:
-		_aiming_at_grabbable = null
+		_aiming_at_interactable = null
 
 	if _grabbing:
 		_grabbing.global_position = lerp(
@@ -1025,7 +1053,7 @@ func _update_grabbing(delta: float) -> void:
 					_bring_weapon_up()
 				_bandages_in_inventory += 1
 			else:
-				push_error("Impossible state")
+				push_error("Unexpected state")
 			_grabbing.queue_free()
 			_grabbing = null
 
@@ -1131,6 +1159,7 @@ func can_throw_grenade() -> bool:
 		and not _switching_weapon
 		and _grenade_throw_cooldown_remaining == 0.0
 		and _grenade_count > 0
+		and not _sleeping
 	)
 
 
@@ -1140,6 +1169,7 @@ func can_use_bandages() -> bool:
 		and not _switching_weapon
 		and _bandages_cooldown_remaining == 0.0
 		and _bandages_in_inventory > 0
+		and not _sleeping
 	)
 
 
@@ -1159,13 +1189,14 @@ func _is_reloading() -> bool:
 	return _reloading_gun or _grenade_throw_cooldown_remaining > 0.0
 
 
-func can_grab() -> bool:
+func can_use() -> bool:
 	return (
 		_health > 0.0
-		and _aiming_at_grabbable
+		and _aiming_at_interactable
 		and not _switching_weapon
 		and not _grabbing
 		and not is_meleeing()
+		and not _sleeping
 	)
 
 
@@ -1179,6 +1210,7 @@ func can_melee() -> bool:
 		and _health > 0.0
 		and not _switching_weapon
 		and not _grabbing 
+		and not _sleeping
 	)
 
 

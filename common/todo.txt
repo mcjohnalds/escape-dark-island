@@ -4,11 +4,14 @@ Todo:
   - Restore health
   - Respawn enemies at random
   - Respawn loot at random
-- More buildings
-- Bubble
-- Toggle night vision
 - Light level affected by NV and location
+- Bubble
+- More buildings
+- Toggle night vision
 - Heightmap
+- Respawning
+- Hardcore mode
+- Saving/loading
 
 - Baked lighting
 - Enemy leaves body

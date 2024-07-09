@@ -7,7 +7,7 @@ enum GraphicsPreset { LOW, MEDIUM, HIGH, INSANE }
 enum PhysicsLayer {
 	DEFAULT = 1 << 0,
 	INTERIOR = 1 << 1,
-	GRABBABLE = 1 << 2,
+	INTERACTABLE = 1 << 2,
 }
 
 @export var environments: Array[Environment] = []

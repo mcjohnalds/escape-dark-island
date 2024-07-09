@@ -61,6 +61,8 @@ func _restart() -> void:
 	_game = game_scene.instantiate()
 	_container.add_child(_game)
 	_game.restarted.connect(_restart)
+	_game.started_sleeping.connect(_fade_out)
+	_game.finished_sleeping.connect(_fade_in)
 	await _fade_in()
 
 

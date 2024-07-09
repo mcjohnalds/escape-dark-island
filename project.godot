@@ -155,7 +155,7 @@ melee={
 
 3d_physics/layer_1="default"
 3d_physics/layer_2="interior"
-3d_physics/layer_3="grabbable"
+3d_physics/layer_3="interactable"
 
 [navigation]
 

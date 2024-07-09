@@ -2,6 +2,8 @@ extends Node
 class_name Game
 
 signal restarted
+signal started_sleeping
+signal finished_sleeping
 
 var _paused := false
 var _desired_mouse_mode := Input.MOUSE_MODE_VISIBLE
@@ -24,6 +26,8 @@ func _ready() -> void:
 	_main_menu.resumed.connect(_unpause)
 	_main_menu.restarted.connect(restarted.emit)
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	global.get_player().started_sleeping.connect(started_sleeping.emit)
+	global.get_player().finished_sleeping.connect(finished_sleeping.emit)
 
 
 func _process(delta: float) -> void:
@@ -76,12 +80,12 @@ func _update_crosshair() -> void:
 	_shoot_crosshair.visible = (
 		not p.is_switching_weapon()
 		and not p.is_meleeing()
-		and not p.can_grab()
+		and not p.can_use()
 	)
 	_grab_crosshair.visible = (
 		not p.is_switching_weapon()
 		and not p.is_meleeing()
-		and p.can_grab()
+		and p.can_use()
 	)
 
 

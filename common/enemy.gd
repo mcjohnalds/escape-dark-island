@@ -210,7 +210,7 @@ func _update_attack() -> void:
 	var query := PhysicsRayQueryParameters3D.new()
 	query.collision_mask = Global.PhysicsLayer.DEFAULT
 	query.from = global_position + Vector3.UP
-	var max_attack_range := 2.0
+	var max_attack_range := 2.0 * 0.01
 	query.to = global.get_player().global_position
 	query.exclude = [get_rid()]
 	var collision := get_world_3d().direct_space_state.intersect_ray(query)

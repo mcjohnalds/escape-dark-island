@@ -1,11 +1,17 @@
 Todo:
 
+- Sleep in bed
+  - Restore health
+  - Respawn enemies at random
+  - Respawn loot at random
 - More buildings
-- Home
 - Bubble
 - Toggle night vision
 - Light level affected by NV and location
+- Heightmap
 
+- Baked lighting
+- Enemy leaves body
 - Give a "+1 bandage" message/animation
 - Skin UI
 - Better melee animations

@@ -160,6 +160,7 @@ melee={
 [navigation]
 
 3d/default_cell_size=0.05
+3d/default_cell_height=0.1
 
 [physics]
 

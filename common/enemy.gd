@@ -89,6 +89,8 @@ func damage(amount: float) -> void:
 		and _get_best_retreat_location()
 	):
 		_transition_to_retreat_state()
+	if _alive and _state == State.IDLE:
+		_transition_to_attack_state()
 
 
 func _update_navigation(delta: float) -> void:

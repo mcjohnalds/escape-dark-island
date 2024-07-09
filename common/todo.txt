@@ -1,10 +1,10 @@
 Todo:
 
-- Make enemy attack if they take damage
-- Make enemy attack randomly if they have retreated
-- Make sure combat is fun
-- Inventory UI
 - More buildings
+- Home
+- Bubble
+- Toggle night vision
+- Light level affected by NV and location
 
 - Give a "+1 bandage" message/animation
 - Skin UI

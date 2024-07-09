@@ -3,7 +3,8 @@ class_name KinematicFpsController
 
 enum WeaponType { GUN, GRENADE, BANDAGES }
 
-@export var melee_duration := 0.6
+@export var melee_duration := 0.4
+@export var melee_range := 2.0
 @export var thrown_grenade_scene: PackedScene
 @export var fire_rate := 11.0
 @export var max_bullet_range := 1000.0
@@ -47,6 +48,7 @@ var _reloading_gun := false
 var _aiming_at_grabbable: Grabbable = null
 var _grabbing: Grabbable = null
 var _last_melee_at := -1000.0
+var _has_melee_applied_damage := false
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -228,7 +230,6 @@ var _quake_camera_tilt_ratio := 0.0
 @onready var _muzzle_flashes: Array[MeshInstance3D] = [
 	%MuzzleFlash1, %MuzzleFlash2, %MuzzleFlash3,
 ]
-@onready var _initial_weapon_linear_pid_kd := weapon_linear_pid_kd
 
 
 func _ready() -> void:
@@ -948,7 +949,7 @@ func _update_weapon_linear_velocity(delta: float) -> void:
 		weapon_linear_pid_kp * error + weapon_linear_pid_kd * error_delta
 	)
 	_weapon_linear_velocity += accel * delta
-	_weapon_linear_velocity = _weapon_linear_velocity
+	_weapon_linear_velocity = _weapon_linear_velocity.limit_length(7.0)
 	_weapon_last_position = _weapon.position
 	_weapon.position += _weapon_linear_velocity * delta
 
@@ -1027,23 +1028,48 @@ func _update_grabbing(delta: float) -> void:
 
 
 func _update_melee() -> void:
+	if _health == 0.0:
+		return
 	var d := Util.get_ticks_sec() - _last_melee_at
 	if d < melee_duration:
 		# TODO: a state machine would work better
-		if d <= melee_duration * 0.2:
+		_target_weapon_position = _initial_weapon_position
+		_target_weapon_position.z += 10.0
+		if d > 0.07 and d <= 0.2:
 			_target_weapon_position = _initial_weapon_position
-			_target_weapon_position.z += 0.3
-		if d > melee_duration * 0.3 and d <= melee_duration * 0.7:
-			weapon_linear_pid_kd = _initial_weapon_linear_pid_kd * 0.4
-			_target_weapon_position = _initial_weapon_position
-			_target_weapon_position.x -= 0.3
-			_target_weapon_position.y += 0.2
-			_target_weapon_position.z -= 0.4
-			_target_weapon_rotation = Vector3(0.0, 0.1 * TAU, 0.1 * TAU)
-		if d > melee_duration * 0.7:
-			weapon_linear_pid_kd = _initial_weapon_linear_pid_kd
+			_target_weapon_position.x -= 1.5
+			_target_weapon_position.y += 1.4
+			_target_weapon_position.z -= 10.0
+			_target_weapon_rotation = Vector3(0.01 * TAU, 0.05 * TAU, 0.1 * TAU)
+			if not _has_melee_applied_damage:
+				_do_melee_damage()
+				_has_melee_applied_damage = true
+		if d > 0.2:
 			_target_weapon_position = _initial_weapon_position
 			_target_weapon_rotation = _initial_weapon_rotation
+			_has_melee_applied_damage = false
+
+
+func _do_melee_damage() -> void:
+	var query := PhysicsRayQueryParameters3D.new()
+	query.collision_mask = Global.PhysicsLayer.DEFAULT
+	query.from = _camera.global_position
+	var dir := -_weapon.global_basis.z
+	query.to = _camera.global_position + dir * melee_range
+	query.exclude = [get_rid()]
+	var collision := get_world_3d().direct_space_state.intersect_ray(query)
+	if collision and collision.collider is Enemy:
+		var enemy: Enemy = collision.collider
+		enemy.damage(5.0)
+		var scene := (
+			goo_bullet_impact_scene if collision.collider is Enemy
+			else default_bullet_impact_scene
+		)
+		var impact: GPUParticles3D = scene.instantiate()
+		impact.position = collision.position
+		impact.one_shot = true
+		impact.emitting = true
+		get_parent().add_child(impact)
 
 
 func _update_muzzle_flash() -> void:

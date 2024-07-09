@@ -1,8 +1,14 @@
 Todo:
 
-- Melee
 - Give a "+1 bandage" message
+- Make enemy attack if they take damage
+- Make enemy attack randomly if they have retreated
+- Make sure combat is fun
+- Inventory UI
 - More buildings
+
+- Skin UI
+- Better melee animations
 - Textures
 - Out of sprint UI animation indicator
 - Better grenade raycast

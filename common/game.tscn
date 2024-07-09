@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://d1y8jdicca0ja"]
+[gd_scene load_steps=16 format=3 uid="uid://d1y8jdicca0ja"]
 
 [ext_resource type="Script" path="res://common/game.gd" id="1_nixut"]
 [ext_resource type="PackedScene" uid="uid://dsinasa0vu1ih" path="res://common/level.tscn" id="2_m3jn1"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://common/blood_overlay.gd" id="6_h3boe"]
 [ext_resource type="PackedScene" uid="uid://ff3oqsj7dv02" path="res://ui/custom_label.tscn" id="6_pjl4h"]
 [ext_resource type="Texture2D" uid="uid://tm6l4hjbmsy6" path="res://ui/grab_crosshair.svg" id="8_k4ypl"]
+[ext_resource type="PackedScene" uid="uid://dg1jmayltrak5" path="res://common/item_icon.tscn" id="10_3f5gw"]
 
 [sub_resource type="Gradient" id="Gradient_tuorp"]
 colors = PackedColorArray(0, 0, 0, 0.043, 1, 1, 1, 0.059)
@@ -157,3 +158,42 @@ grow_vertical = 2
 unique_name_in_owner = true
 layout_mode = 2
 pause_menu = true
+
+[node name="ItemIcons" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ItemIcons"]
+layout_mode = 2
+alignment = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ItemIcons/VBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="GunIcon" parent="ItemIcons/VBoxContainer/HBoxContainer" instance=ExtResource("10_3f5gw")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+text = "90"
+
+[node name="GrenadeIcon" parent="ItemIcons/VBoxContainer/HBoxContainer" instance=ExtResource("10_3f5gw")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+item_type = 1
+text = "2"
+
+[node name="BandagesIcon" parent="ItemIcons/VBoxContainer/HBoxContainer" instance=ExtResource("10_3f5gw")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+item_type = 2
+text = "1"

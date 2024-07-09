@@ -738,7 +738,9 @@ func _play_step_audio(
 	_step_audio_stream_player.play()
 
 
-func _get_next_camera_fov(vel: Vector3, is_crouching: bool, delta: float) -> float:
+func _get_next_camera_fov(
+	vel: Vector3, is_crouching: bool, delta: float
+) -> float:
 	var max_locomotion_speed := (
 		base_speed * maxf(sprint_speed_multiplier, fly_mode_speed_modifier)
 	)
@@ -1040,7 +1042,9 @@ func _update_melee() -> void:
 			_target_weapon_position.x -= 1.5
 			_target_weapon_position.y += 1.4
 			_target_weapon_position.z -= 10.0
-			_target_weapon_rotation = Vector3(0.01 * TAU, 0.05 * TAU, 0.1 * TAU)
+			_target_weapon_rotation = Vector3(
+				0.01 * TAU, 0.05 * TAU, 0.1 * TAU
+			)
 			if not _has_melee_applied_damage:
 				_do_melee_damage()
 				_has_melee_applied_damage = true
@@ -1155,7 +1159,13 @@ func _is_reloading() -> bool:
 
 
 func can_grab() -> bool:
-	return _health > 0.0 and _aiming_at_grabbable and not _switching_weapon and not _grabbing and not is_meleeing()
+	return (
+		_health > 0.0
+		and _aiming_at_grabbable
+		and not _switching_weapon
+		and not _grabbing
+		and not is_meleeing()
+	)
 
 
 func is_switching_weapon() -> bool:
@@ -1163,7 +1173,12 @@ func is_switching_weapon() -> bool:
 
 
 func can_melee() -> bool:
-	return Util.get_ticks_sec() - _last_melee_at > melee_duration and _health > 0.0 and not _switching_weapon and not _grabbing 
+	return (
+		Util.get_ticks_sec() - _last_melee_at > melee_duration
+		and _health > 0.0
+		and not _switching_weapon
+		and not _grabbing 
+	)
 
 
 func is_meleeing() -> bool:

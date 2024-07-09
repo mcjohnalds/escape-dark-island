@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://cssf17ds7a3vp"]
+
+[ext_resource type="Script" path="res://common/item_viewer.gd" id="1_rgfww"]
+[ext_resource type="PackedScene" uid="uid://cf762veqbirs4" path="res://common/assault_rifle.glb" id="2_h15cc"]
+[ext_resource type="PackedScene" uid="uid://csfurv58dsfo1" path="res://common/bandages.blend" id="3_emld6"]
+[ext_resource type="PackedScene" uid="uid://cfh6b484xv5gf" path="res://common/grenade.blend" id="3_mdxdr"]
+
+[node name="ItemViewer" type="Node3D"]
+script = ExtResource("1_rgfww")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(0.707107, -0.353553, 0.612373, 3.02058e-16, 0.866025, 0.5, -0.707107, -0.353553, 0.612373, 1, 0.82, 1)
+projection = 1
+fov = 53.5
+size = 1.59
+near = 0.01
+far = 100.0
+
+[node name="ItemContainer" type="Node3D" parent="."]
+unique_name_in_owner = true
+
+[node name="Gun" type="Node3D" parent="ItemContainer"]
+unique_name_in_owner = true
+
+[node name="Model" parent="ItemContainer/Gun" instance=ExtResource("2_h15cc")]
+transform = Transform3D(0.356, 0, 0, 0, 0.356, 0, 0, 0, 0.356, -0.3, -0.21, 2.08165e-12)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="ItemContainer/Gun"]
+transform = Transform3D(0.707107, -0.353553, 0.612373, 3.02059e-16, 0.866026, 0.499999, -0.707107, -0.353553, 0.612373, 1.19209e-07, 4.99999, 4.33681e-19)
+light_energy = 15.0
+
+[node name="Grenade" type="Node3D" parent="ItemContainer"]
+unique_name_in_owner = true
+visible = false
+
+[node name="Model" parent="ItemContainer/Grenade" instance=ExtResource("3_mdxdr")]
+transform = Transform3D(2.84173, 9.93334e-08, 4.9135, -3.42774e-08, 5.67608, -9.49256e-08, -4.9135, 1.78523e-08, 2.84173, 0, -0.542299, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="ItemContainer/Grenade"]
+transform = Transform3D(0.707107, -0.353553, 0.612373, 3.02059e-16, 0.866026, 0.499999, -0.707107, -0.353553, 0.612373, 1.19209e-07, 4.99999, 4.33681e-19)
+
+[node name="Bandages" type="Node3D" parent="ItemContainer"]
+unique_name_in_owner = true
+visible = false
+
+[node name="Model" parent="ItemContainer/Bandages" instance=ExtResource("3_emld6")]
+transform = Transform3D(11.1113, 0, 0, 0, 11.1113, 0, 0, 0, 11.1113, 0, 0, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="ItemContainer/Bandages"]
+transform = Transform3D(0.707107, -0.353554, 0.612372, 3.02058e-16, 0.866025, 0.500001, -0.707107, -0.353554, 0.612372, 0, 5, 0)
+light_energy = 0.5

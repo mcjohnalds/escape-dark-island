@@ -41,6 +41,18 @@ signal button_down
 		_update()
 
 
+@export var disabled := false:
+	set(value):
+		disabled = value
+		_update()
+
+
+@export var hover := false:
+	set(value):
+		hover = value
+		_update()
+
+
 @export var _default_material: Material
 @export var _primary_material: Material
 @export var click_small_sound := false
@@ -51,6 +63,7 @@ signal button_down
 @onready var _chevron: Control = %Chevron
 @onready var _hover: Control = %Hover
 @onready var _back_icon: Control = %BackIcon
+@onready var _disabled: Control = %Disabled
 
 
 func _ready() -> void:
@@ -83,15 +96,17 @@ func _update() -> void:
 	_check.visible = checked
 	_chevron.visible = chevron
 	_back_icon.visible = back_icon
+	_disabled.visible = disabled
+	_hover.visible = hover
 	_background.material = (
 		_primary_material if primary else _default_material
 	)
 
 
 func _on_mouse_entered() -> void:
-	_hover.visible = true
+	_hover.visible = true or hover
 	global.play_hover_sound()
 
 
 func _on_mouse_exited() -> void:
-	_hover.visible = false
+	_hover.visible = false or hover

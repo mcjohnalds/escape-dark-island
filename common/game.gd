@@ -15,6 +15,9 @@ var _mouse_mode_mismatch_count := 0
 @onready var _ammo_label: Label = %AmmoLabel
 @onready var _shoot_crosshair: Control = %ShootCrosshair
 @onready var _grab_crosshair: Control = %GrabCrosshair
+@onready var _gun_icon: ItemIcon = %GunIcon
+@onready var _grenade_icon: ItemIcon = %GrenadeIcon
+@onready var _bandages_icon: ItemIcon = %BandagesIcon
 
 
 func _ready() -> void:
@@ -39,6 +42,7 @@ func _process(delta: float) -> void:
 	_update_sprint_bar(delta)
 	_update_ammo_label()
 	_update_crosshair()
+	_update_item_icons()
 
 
 func _update_sprint_bar(delta: float) -> void:
@@ -56,37 +60,45 @@ func _update_ammo_label() -> void:
 	var p := global.get_player()
 	match p.get_weapon_type():
 		KinematicFpsController.WeaponType.GUN:
-			_ammo_label.text = (
-				"%s/%s - 5.56 mm"
-				% [
-					p.get_gun_ammo_in_magazine(),
-					p.get_gun_ammo_in_inventory()
-				]
-			)
+			_ammo_label.text = "%s/31 - 5.56 mm" % p.get_gun_ammo_in_magazine()
 		KinematicFpsController.WeaponType.GRENADE:
-			var a := 1 if p.can_throw_grenade() else 0
 			_ammo_label.text = (
-				"%s/%s - Mk 2"
-				% [
-					a,
-					maxf(p.get_grenade_count() - a, 0)
-				]
+				"%s/1 - Mk 2" % (1 if p.can_throw_grenade() else 0)
 			)
 		KinematicFpsController.WeaponType.BANDAGES:
-			var a := 1 if p.can_use_bandages() else 0
 			_ammo_label.text = (
-				"%s/%s - Bandages"
-				% [
-					a,
-					maxf(p.get_bandages_count() - a, 0)
-				]
+				"%s/1 - Bandages" % (1 if p.can_use_bandages() else 0)
 			)
 
 
 func _update_crosshair() -> void:
 	var p := global.get_player()
-	_shoot_crosshair.visible = not p.is_switching_weapon() and not p.is_meleeing() and not p.can_grab()
-	_grab_crosshair.visible = not p.is_switching_weapon() and not p.is_meleeing() and p.can_grab()
+	_shoot_crosshair.visible = (
+		not p.is_switching_weapon()
+		and not p.is_meleeing()
+		and not p.can_grab()
+	)
+	_grab_crosshair.visible = (
+		not p.is_switching_weapon()
+		and not p.is_meleeing()
+		and p.can_grab()
+	)
+
+
+func _update_item_icons() -> void:
+	var p := global.get_player()
+	var gun_ammo := (
+		p.get_gun_ammo_in_magazine() + p.get_gun_ammo_in_inventory()
+	)
+	_gun_icon.text = "%s" % gun_ammo
+	_grenade_icon.text = "%s" % p.get_grenade_count()
+	_bandages_icon.text = "%s" % p.get_bandages_count()
+	var t := p.get_weapon_type()
+	_gun_icon.hover = t == KinematicFpsController.WeaponType.GUN
+	_grenade_icon.hover = t == KinematicFpsController.WeaponType.GRENADE
+	_bandages_icon.hover = t == KinematicFpsController.WeaponType.BANDAGES
+	_grenade_icon.disabled = p.get_grenade_count() == 0
+	_bandages_icon.disabled = p.get_bandages_count() == 0
 
 
 func _unhandled_input(event: InputEvent) -> void:

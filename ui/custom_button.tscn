@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://7vdx2q26wpr2"]
+[gd_scene load_steps=16 format=3 uid="uid://7vdx2q26wpr2"]
 
 [ext_resource type="Material" uid="uid://csawxourd0ta3" path="res://ui/panel_material.tres" id="1_8lepr"]
 [ext_resource type="Script" path="res://ui/custom_button.gd" id="1_ltvm2"]
@@ -28,6 +28,21 @@ border_width_top = 10
 border_width_right = 10
 border_width_bottom = 10
 border_color = Color(0.116127, 0.116127, 0.116127, 1)
+border_blend = true
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_hpimh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5nu3v"]
+bg_color = Color(0.108721, 0.108721, 0.108721, 0.802)
+border_width_left = 10
+border_width_top = 10
+border_width_right = 10
+border_width_bottom = 10
+border_color = Color(0.11, 0.11, 0.11, 0.888)
 border_blend = true
 corner_radius_top_left = 2
 corner_radius_top_right = 2
@@ -118,11 +133,23 @@ layout_mode = 2
 texture = ExtResource("7_sd7oc")
 expand_mode = 3
 
+[node name="Container" type="Control" parent="."]
+layout_mode = 2
+
 [node name="Outline" type="Panel" parent="."]
+visible = false
 material = SubResource("CanvasItemMaterial_dp4o1")
 layout_mode = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_np1hd")
+
+[node name="Disabled" type="Panel" parent="."]
+unique_name_in_owner = true
+visible = false
+material = SubResource("CanvasItemMaterial_hpimh")
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_5nu3v")
 
 [node name="Hover" parent="." instance=ExtResource("9_apg18")]
 unique_name_in_owner = true

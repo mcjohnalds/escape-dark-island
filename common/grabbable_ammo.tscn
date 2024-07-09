@@ -3,8 +3,8 @@
 [ext_resource type="Script" path="res://common/grabbable.gd" id="1_0ugwq"]
 [ext_resource type="PackedScene" uid="uid://b40ua6kwdjmgq" path="res://common/magazine.blend" id="2_4rvs2"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_tirft"]
-size = Vector3(0.0396729, 0.24353, 0.186615)
+[sub_resource type="SphereShape3D" id="SphereShape3D_yjjd0"]
+radius = 0.2
 
 [node name="GrabbableAmmo" type="StaticBody3D"]
 collision_layer = 4
@@ -15,5 +15,5 @@ script = ExtResource("1_0ugwq")
 transform = Transform3D(0.284516, 6.16691e-09, 1.63668e-09, -6.16691e-09, 0.247073, 0.141082, 1.63668e-09, -0.141082, 0.247073, -0.000594795, 0.0735274, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000793457, 0.076355, 0.00325012)
-shape = SubResource("BoxShape3D_tirft")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.0609099, 2.08165e-12)
+shape = SubResource("SphereShape3D_yjjd0")

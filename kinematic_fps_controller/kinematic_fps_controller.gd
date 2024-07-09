@@ -8,7 +8,7 @@ enum WeaponType { GUN, GRENADE, BANDAGES }
 @export var thrown_grenade_scene: PackedScene
 @export var fire_rate := 11.0
 @export var max_bullet_range := 1000.0
-@export var max_grab_range := 2.0
+@export var max_grab_range := 3.0
 @export var goo_bullet_impact_scene: PackedScene
 @export var default_bullet_impact_scene: PackedScene
 @export var tracer_scene: PackedScene
@@ -54,6 +54,7 @@ var _has_melee_applied_damage := false
 @onready var _gun: Node3D = %Gun
 @onready var _grenade: Node3D = %Grenade
 @onready var _bandages: Node3D = %Bandages
+@onready var _center: Node3D = %Center
 @onready var _target_weapon_position: Vector3 = _weapon.position
 @onready var _target_weapon_rotation: Vector3 = _weapon.rotation
 @onready var _initial_weapon_position: Vector3 = _weapon.position
@@ -898,7 +899,7 @@ func _update_grenade(delta: float) -> void:
 		return
 	if can_throw_grenade() and Input.is_action_pressed("shoot"):
 		_grenade_count -= 1
-		_grenade_throw_cooldown_remaining = 2.0
+		_grenade_throw_cooldown_remaining = 1.0
 		var tg: ThrownGrenade = thrown_grenade_scene.instantiate()
 		tg.position = _grenade.global_position - _camera.global_basis.x * 0.1
 		tg.linear_velocity += -_camera.global_basis.z * 15.0
@@ -930,7 +931,7 @@ func _update_bandages(delta: float) -> void:
 		and _health < max_health
 	):
 		_bandages_in_inventory -= 1
-		_bandages_cooldown_remaining = 2.0
+		_bandages_cooldown_remaining = 1.0
 		_bring_weapon_down()
 	if _bandages_cooldown_remaining > 0.0:
 		_bandages_cooldown_remaining -= delta
@@ -1183,3 +1184,7 @@ func can_melee() -> bool:
 
 func is_meleeing() -> bool:
 	return Util.get_ticks_sec() - _last_melee_at <= melee_duration
+
+
+func get_center() -> Vector3:
+	return _center.position

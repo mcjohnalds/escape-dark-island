@@ -204,6 +204,9 @@ underwater_env = ExtResource("2_owsda")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 shape = SubResource("CapsuleShape3D_fn1rj")
 
+[node name="Center" type="Node3D" parent="CollisionShape3D"]
+unique_name_in_owner = true
+
 [node name="Head" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.46, 2.08165e-12)
 

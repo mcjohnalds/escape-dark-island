@@ -3,7 +3,7 @@ class_name ThrownGrenade
 
 @export var explosion_scene: PackedScene
 @export var explosion_range := 14.0
-@export var explosion_max_damage := 110.0
+@export var explosion_max_damage := 100.0
 
 
 func _ready() -> void:
@@ -18,12 +18,13 @@ func _explode() -> void:
 	global.get_level().add_child(explosion)
 
 	var targets := get_tree().get_nodes_in_group("enemies")
-	targets.append(get_tree().get_first_node_in_group("player"))
-	for target: Node3D in targets:
+	# targets.append(get_tree().get_first_node_in_group("player"))
+	for target: PhysicsBody3D in targets:
 		var query := PhysicsRayQueryParameters3D.new()
 		query.collision_mask = Global.PhysicsLayer.DEFAULT
-		query.from = global_position + center_of_mass
-		query.to = target.global_position
+		query.from = global_transform * center_of_mass
+		var p: Vector3 = target.global_transform * target.get_center()
+		query.to = query.from + query.from.direction_to(p) * explosion_range
 		query.exclude = [self.get_rid()]
 		var collision := get_world_3d().direct_space_state.intersect_ray(query)
 		if collision:

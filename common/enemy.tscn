@@ -45,6 +45,9 @@ unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.9, 2.08165e-12)
 shape = SubResource("CapsuleShape3D_hbx1n")
 
+[node name="Center" type="Node3D" parent="CollisionShape3D"]
+unique_name_in_owner = true
+
 [node name="Body" type="MeshInstance3D" parent="."]
 unique_name_in_owner = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.824719, 2.08165e-12)

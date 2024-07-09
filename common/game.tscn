@@ -136,29 +136,6 @@ grow_vertical = 2
 texture = ExtResource("8_k4ypl")
 expand_mode = 1
 
-[node name="DeathOverlay" type="ColorRect" parent="." groups=["death_overlay"]]
-modulate = Color(1, 1, 1, 0)
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0, 0, 0, 1)
-
-[node name="MenuContainer" type="PanelContainer" parent="."]
-unique_name_in_owner = true
-visible = false
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="MainMenu" parent="MenuContainer" instance=ExtResource("3_3ao77")]
-unique_name_in_owner = true
-layout_mode = 2
-pause_menu = true
-
 [node name="ItemIcons" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
@@ -197,3 +174,26 @@ custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
 item_type = 2
 text = "1"
+
+[node name="DeathOverlay" type="ColorRect" parent="." groups=["death_overlay"]]
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="MenuContainer" type="PanelContainer" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainMenu" parent="MenuContainer" instance=ExtResource("3_3ao77")]
+unique_name_in_owner = true
+layout_mode = 2
+pause_menu = true

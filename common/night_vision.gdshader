@@ -15,8 +15,8 @@ float frame() {
 
 vec3 blend_soft_light(vec3 base, vec3 blend) {
 	return mix(
-			sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend), 
-			2.0 * base * blend + base * base * (1.0 - 2.0 * blend), 
+			sqrt(base) * (2.0 * blend - 1.0) + 2.0 * base * (1.0 - blend),
+			2.0 * base * blend + base * base * (1.0 - 2.0 * blend),
 			step(base, vec3(0.5))
 	);
 }
@@ -108,7 +108,7 @@ vec3 speckle(vec3 color, vec2 uv) {
 	vec2 c = vec2(0.5);
 	float d = distance(fpos, c);
 	if (r < speckleFrequency) {
-		return color + 1.0 - smoothstep(circleRadius, circleRadius * 5.0, d);
+		return color + (1.0 - smoothstep(circleRadius, circleRadius * 5.0, d)) * 0.1;
 	}
 	return color;
 }

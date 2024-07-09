@@ -9,7 +9,7 @@ var min_retreat_duration := 5.0
 var movement_speed := 8.0
 var retreat_damage_threshold := 20.0
 var acceleration_speed := 2.0
-var max_health := 100.0
+var max_health := 150.0
 var _state := State.IDLE
 var _damage_taken_since_last_state_transition := 0.0
 var _last_state_transition_at := -1000.0
@@ -25,6 +25,7 @@ var _last_attack_at := -1000.0
 @onready var _initial_eye_position := _eye.position
 @onready var _initial_body_position := _body.position
 @onready var _health := max_health
+@onready var _center: Node3D = %Center
 
 
 func _ready() -> void:
@@ -59,7 +60,9 @@ func damage(amount: float) -> void:
 			_collision_shape.disabled = true
 			_alive = false
 			_eye.visible = false
-			var eye_explosion: CustomParticlesCluster = eye_explosion_scene.instantiate()
+			var eye_explosion: CustomParticlesCluster = (
+				eye_explosion_scene.instantiate()
+			)
 			eye_explosion.position = _eye.global_position
 			eye_explosion.one_shot = true
 			eye_explosion.emitting = true
@@ -68,12 +71,16 @@ func damage(amount: float) -> void:
 			_shrinking = true
 			await get_tree().create_timer(0.7).timeout
 			_body.visible = false
-			var body_explosion: CustomParticlesCluster = black_goo_explosion_scene.instantiate()
+			var body_explosion: CustomParticlesCluster = (
+				black_goo_explosion_scene.instantiate()
+			)
 			body_explosion.position = _eye.global_position
 			body_explosion.one_shot = true
 			body_explosion.emitting = true
 			get_parent().add_child(body_explosion)
-			await get_tree().create_timer(body_explosion.get_max_lifetime()).timeout
+			await get_tree().create_timer(
+				body_explosion.get_max_lifetime()
+			).timeout
 	if (
 		_alive
 		and _damage_taken_since_last_state_transition
@@ -130,7 +137,14 @@ func _update_navigation(delta: float) -> void:
 		else:
 			_transition_to_attack_state()
 	var target_dir := Vector3.ZERO
-	if not _navigation_agent.is_navigation_finished() and (not can_see_player or _state != State.ATTACK or global_position.distance_to(global.get_player().global_position) > 2.0):
+	if (
+		not _navigation_agent.is_navigation_finished()
+		and (not can_see_player
+		or _state != State.ATTACK
+		or global_position.distance_to(
+			global.get_player().global_position) > 2.0
+		)
+	):
 		target_dir = global_position.direction_to(
 			_navigation_agent.get_next_path_position()
 		)
@@ -147,9 +161,6 @@ func _update_navigation(delta: float) -> void:
 			and _state != State.ATTACK
 		):
 			_transition_to_attack_state()
-	get_tree().get_first_node_in_group("debug_sphere").global_position = (
-		_navigation_agent.target_position
-	)
 
 
 func _update_rotation(delta: float) -> void:
@@ -295,3 +306,7 @@ func _transition_to_retreat_state() -> void:
 	_navigation_agent.set_target_position(
 		_get_best_retreat_location().global_position
 	)
+
+
+func get_center() -> Vector3:
+	return _center.position

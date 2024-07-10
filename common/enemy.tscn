@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dvfhbivhdrs8c"]
+[gd_scene load_steps=12 format=3 uid="uid://dvfhbivhdrs8c"]
 
 [ext_resource type="Script" path="res://common/enemy.gd" id="1_jxcny"]
 [ext_resource type="PackedScene" uid="uid://67byoph2m5is" path="res://common/black_goo_explosion.tscn" id="2_315ry"]
@@ -10,6 +10,11 @@
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hbx1n"]
 radius = 0.3
 height = 1.8
+
+[sub_resource type="SphereMesh" id="SphereMesh_dqovy"]
+material = ExtResource("2_uq58v")
+radius = 0.3
+height = 0.2
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_b7vc0"]
 resource_local_to_scene = true
@@ -47,6 +52,26 @@ shape = SubResource("CapsuleShape3D_hbx1n")
 
 [node name="Center" type="Node3D" parent="CollisionShape3D"]
 unique_name_in_owner = true
+
+[node name="DeadBody" type="Node3D" parent="."]
+unique_name_in_owner = true
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.08165e-12, 0.824719, 2.08165e-12)
+visible = false
+
+[node name="MeshInstance3D1" type="MeshInstance3D" parent="DeadBody"]
+transform = Transform3D(1.0801, 0, 0, 0, 0.836038, 0, 0, 0, 0.836038, 0, 0, 0)
+mesh = SubResource("SphereMesh_dqovy")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="DeadBody"]
+transform = Transform3D(0.856605, 0, 0, 0, 0.856605, 0, 0, 0, 0.856605, -0.0071367, 0.0263497, 0.0352917)
+mesh = SubResource("SphereMesh_dqovy")
+skeleton = NodePath("../..")
+
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="DeadBody"]
+transform = Transform3D(0.856605, 0, 0, 0, 0.856605, 0, 0, 0, 0.856605, -0.0831594, -0.0382839, -0.0484182)
+mesh = SubResource("SphereMesh_dqovy")
+skeleton = NodePath("../..")
 
 [node name="Body" type="MeshInstance3D" parent="."]
 unique_name_in_owner = true

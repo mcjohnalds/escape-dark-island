@@ -1,6 +1,5 @@
 Todo:
 
-- Enemy leaves body
 - Light level affected by NV and location
 - Bubble
 - More buildings

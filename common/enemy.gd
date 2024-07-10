@@ -16,6 +16,7 @@ var _last_state_transition_at := -1000.0
 var _animation_time := 0.0
 var _alive := true
 var _shrinking := false
+var _falling := false
 var _last_attack_at := -1000.0
 @onready var _navigation_agent: NavigationAgent3D = %NavigationAgent3D
 @onready var _eye: Node3D = %Eye
@@ -26,6 +27,8 @@ var _last_attack_at := -1000.0
 @onready var _initial_body_position := _body.position
 @onready var _health := max_health
 @onready var _center: Node3D = %Center
+@onready var _initial_mesh_size: Vector2 = _body.mesh.size
+@onready var _dead_body: Node3D = %DeadBody
 
 
 func _ready() -> void:
@@ -52,6 +55,7 @@ func _physics_process(delta: float) -> void:
 
 
 func damage(amount: float) -> void:
+	amount *= 10.0
 	_health -= amount
 	_damage_taken_since_last_state_transition += amount
 	if _health < 0.0:
@@ -70,7 +74,6 @@ func damage(amount: float) -> void:
 			await get_tree().create_timer(0.7).timeout
 			_shrinking = true
 			await get_tree().create_timer(0.7).timeout
-			_body.visible = false
 			var body_explosion: CustomParticlesCluster = (
 				black_goo_explosion_scene.instantiate()
 			)
@@ -79,8 +82,11 @@ func damage(amount: float) -> void:
 			body_explosion.emitting = true
 			get_parent().add_child(body_explosion)
 			await get_tree().create_timer(
-				body_explosion.get_max_lifetime()
+				body_explosion.get_max_lifetime() * 0.5
 			).timeout
+			_body.visible = false
+			_dead_body.visible = true
+			_falling = true
 	if (
 		_alive
 		and _damage_taken_since_last_state_transition
@@ -167,9 +173,10 @@ func _update_navigation(delta: float) -> void:
 
 func _update_rotation(delta: float) -> void:
 	var v: Vector3 = global.get_player().global_position - global_position
-	rotation.y = lerp_angle(
-		rotation.y, atan2(v.x, v.z), delta * acceleration_speed
-	)
+	if _alive:
+		rotation.y = lerp_angle(
+			rotation.y, atan2(v.x, v.z), delta * acceleration_speed
+		)
 
 
 func _update_eye() -> void:
@@ -196,11 +203,18 @@ func _update_body(delta: float) -> void:
 	var mesh: QuadMesh = _body.mesh
 	var material: ShaderMaterial = mesh.material
 	material.set_shader_parameter("health", _health / max_health)
-	material.set_shader_parameter("time", _animation_time)
+	if not _shrinking:
+		material.set_shader_parameter("time", _animation_time)
 	if _shrinking:
 		mesh.size -= 2.0 * mesh.size * delta
-		if mesh.size.x < 0.0 or mesh.size.y < 0.0:
-			mesh.size = Vector2.ZERO
+		mesh.size = mesh.size.clamp(
+			Vector2(_initial_mesh_size.x * 1.4, _initial_mesh_size.y * 0.25),
+			_initial_mesh_size
+		)
+	if _falling:
+		_dead_body.position = lerp(
+			_dead_body.position, Vector3.DOWN * 0.2, delta * 1.0
+		)
 
 
 func _update_attack() -> void:

@@ -1,5 +1,8 @@
 Todo:
 
+- Fix sprint exploit
+- Fix pause menu bug
+- Add fuel mechanic
 - Make player home outside look pretty
 - More buildings
 - Heightmap
@@ -9,6 +12,7 @@ Todo:
 - Notes on wall or something that explains the lore
 - Randomly appearing messages in black goo like "go away"
 - Enemies do not enter home
+- Fix pause to see in dark exploit
 
 - Baked lighting
 - Give a "+1 bandage" message/animation

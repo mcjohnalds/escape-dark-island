@@ -1,6 +1,5 @@
 Todo:
 
-- Fix sprint exploit
 - Fix pause menu bug
 - Add fuel mechanic
 - Make player home outside look pretty

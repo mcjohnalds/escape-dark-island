@@ -30,6 +30,7 @@ signal finished_sleeping
 @export var camera_angular_pid_kd := 1.0
 @export var sprint_seconds := 3.0
 @export var sprint_regen_time := 6.0
+@export var sprint_energy_jump_cost := 0.3
 var sprint_energy := 1.0
 var _switching_weapon := false
 var _last_sprint_cooldown_at := -1000.0
@@ -454,7 +455,10 @@ func _update_movement(delta: float) -> void:
 		depth_on_water = -_swim_ray_cast.to_local(point).y
 
 	var is_jumping := (
-		input_jump and is_on_floor() and not _head_ray_cast.is_colliding()
+		input_jump
+		and is_on_floor()
+		and not _head_ray_cast.is_colliding()
+		and sprint_energy >= sprint_energy_jump_cost
 	)
 
 	var is_submerged := (
@@ -612,7 +616,9 @@ func _update_movement(delta: float) -> void:
 		_weapon_linear_velocity += Vector3(0.0, dh * 100.0, 0.0)
 		_weapon_angular_velocity += Vector3(dh * delta * 500.0, 0.0, 0.0)
 
-	if is_sprinting:
+	if is_jumping:
+		sprint_energy -= sprint_energy_jump_cost
+	elif is_sprinting:
 		sprint_energy -= delta / sprint_seconds
 	elif not is_sprint_regen_cooldown:
 		sprint_energy += delta / sprint_regen_time

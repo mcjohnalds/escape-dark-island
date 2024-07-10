@@ -135,6 +135,7 @@ expand_mode = 3
 
 [node name="Container" type="Control" parent="."]
 layout_mode = 2
+mouse_filter = 2
 
 [node name="Outline" type="Panel" parent="."]
 visible = false
@@ -148,7 +149,6 @@ unique_name_in_owner = true
 visible = false
 material = SubResource("CanvasItemMaterial_hpimh")
 layout_mode = 2
-mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_5nu3v")
 
 [node name="Hover" parent="." instance=ExtResource("9_apg18")]

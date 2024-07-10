@@ -1,6 +1,6 @@
 Todo:
 
-- Fix pause menu bug
+- Fix shoot after unpause bug
 - Add fuel mechanic
 - Make player home outside look pretty
 - More buildings

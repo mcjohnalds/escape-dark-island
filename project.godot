@@ -48,6 +48,9 @@ blood_overlay=""
 death_overlay=""
 level=""
 enemies=""
+grabbable_ammo=""
+grabbable_bandages=""
+grabbable_grenades=""
 
 [gui]
 

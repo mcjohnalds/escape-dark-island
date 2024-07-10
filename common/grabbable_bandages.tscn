@@ -6,7 +6,7 @@
 [sub_resource type="SphereShape3D" id="SphereShape3D_p1r4r"]
 radius = 0.2
 
-[node name="GrabbableBandages" type="StaticBody3D"]
+[node name="GrabbableBandages" type="StaticBody3D" groups=["grabbable_bandages"]]
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("1_7v7ac")

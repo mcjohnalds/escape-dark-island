@@ -1,6 +1,7 @@
-[gd_scene load_steps=16 format=3 uid="uid://d1y8jdicca0ja"]
+[gd_scene load_steps=17 format=3 uid="uid://d1y8jdicca0ja"]
 
 [ext_resource type="Script" path="res://common/game.gd" id="1_nixut"]
+[ext_resource type="PackedScene" uid="uid://dvfhbivhdrs8c" path="res://common/enemy.tscn" id="2_g8r12"]
 [ext_resource type="PackedScene" uid="uid://dsinasa0vu1ih" path="res://common/level.tscn" id="2_m3jn1"]
 [ext_resource type="PackedScene" uid="uid://4xgl4drja75q" path="res://ui/main_menu.tscn" id="3_3ao77"]
 [ext_resource type="Texture2D" uid="uid://c3e3e6qpqh5jl" path="res://ui/crosshair.svg" id="3_gck2x"]
@@ -31,6 +32,7 @@ shader_parameter/dirt_texture = SubResource("NoiseTexture2D_43mgo")
 
 [node name="Game" type="Node3D"]
 script = ExtResource("1_nixut")
+enemy_scene = ExtResource("2_g8r12")
 
 [node name="Container" type="Node3D" parent="."]
 

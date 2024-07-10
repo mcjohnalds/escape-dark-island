@@ -61,7 +61,7 @@ func _restart() -> void:
 	_game = game_scene.instantiate()
 	_container.add_child(_game)
 	_game.restarted.connect(_restart)
-	_game.started_sleeping.connect(_fade_out)
+	_game.started_sleeping.connect(_on_started_sleeping)
 	_game.finished_sleeping.connect(_fade_in)
 	await _fade_in()
 
@@ -76,3 +76,8 @@ func _fade_in() -> void:
 	_fade_in_started_at = Util.get_ticks_sec()
 	await get_tree().create_timer(_FADE_DURATION).timeout
 	_transition.color.a = 0.0
+
+
+func _on_started_sleeping() -> void:
+	await _fade_out()
+	_game.randomize_level()

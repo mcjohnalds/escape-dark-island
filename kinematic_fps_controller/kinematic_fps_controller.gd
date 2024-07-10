@@ -1054,7 +1054,7 @@ func _update_interaction(delta: float) -> void:
 				_bandages_in_inventory += 1
 			else:
 				push_error("Unexpected state")
-			_grabbing.queue_free()
+			_grabbing.disable()
 			_grabbing = null
 
 

@@ -29,10 +29,7 @@ func _ready() -> void:
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	global.get_player().started_sleeping.connect(started_sleeping.emit)
 	global.get_player().finished_sleeping.connect(finished_sleeping.emit)
-	_spawn_enemy()
-	_randomize_group("grabbable_ammo", 3.0, 1.0)
-	_randomize_group("grabbable_grenades", 2.0, 1.0)
-	_randomize_group("grabbable_bandages", 2.0, 1.0)
+	randomize_level()
 
 
 func _process(delta: float) -> void:
@@ -143,6 +140,8 @@ func set_mouse_mode(mode: Input.MouseMode) -> void:
 
 
 func _spawn_enemy() -> void:
+	for enemy: Enemy in get_tree().get_nodes_in_group("enemies"):
+		enemy.queue_free()
 	var enemy_spawn: Node3D = (
 		get_tree().get_nodes_in_group("retreat_locations").pick_random()
 	)
@@ -151,15 +150,23 @@ func _spawn_enemy() -> void:
 	add_child(enemy)
 
 
-func _randomize_group(
+func _randomize_grabbable_group(
 	group_name: String, mean: float, deviation: float
 ) -> void:
-	var grabbable_ammos := get_tree().get_nodes_in_group(group_name)
-	var random_ammo := clampi(
-		roundi(randfn(mean, deviation)), 1, grabbable_ammos.size()
+	var grabbables := get_tree().get_nodes_in_group(group_name)
+	var random_count := clampi(
+		roundi(randfn(mean, deviation)), 1, grabbables.size()
 	)
-	for i in random_ammo:
-		grabbable_ammos.remove_at(randi_range(0, grabbable_ammos.size() - 1))
-	for grabbable_ammo in grabbable_ammos:
-		grabbable_ammo.process_mode = Node.PROCESS_MODE_DISABLED
-		grabbable_ammo.visible = false
+	for i in random_count:
+		var j := randi_range(0, grabbables.size() - 1)
+		grabbables[j].reset()
+		grabbables.remove_at(j)
+	for grabbable in grabbables:
+		grabbable.disable()
+
+
+func randomize_level() -> void:
+	_spawn_enemy()
+	_randomize_grabbable_group("grabbable_ammo", 3.0, 1.0)
+	_randomize_grabbable_group("grabbable_grenades", 2.0, 1.0)
+	_randomize_grabbable_group("grabbable_bandages", 2.0, 1.0)

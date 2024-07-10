@@ -81,7 +81,7 @@ func set_graphics_preset(graphics_preset: GraphicsPreset) -> void:
 			msaa_3d = Viewport.MSAA_2X
 			environment_volumetric_fog_enabled = false
 			environment_glow_enabled = true
-			environment_ssao_enabled = false
+			environment_ssao_enabled = true
 			environment_ssil_enabled = false
 			environment_sdfgi_enabled = false
 		GraphicsPreset.HIGH:

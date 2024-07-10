@@ -37,8 +37,10 @@ enemy_scene = ExtResource("2_g8r12")
 [node name="Container" type="Node3D" parent="."]
 
 [node name="Level" parent="Container" instance=ExtResource("2_m3jn1")]
+unique_name_in_owner = true
 
 [node name="NightVisionShader" type="ColorRect" parent="."]
+unique_name_in_owner = true
 material = SubResource("ShaderMaterial_hmm4h")
 anchors_preset = 15
 anchor_right = 1.0

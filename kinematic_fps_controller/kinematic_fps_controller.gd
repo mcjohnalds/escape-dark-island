@@ -52,6 +52,7 @@ var _grabbing: Grabbable = null
 var _last_melee_at := -1000.0
 var _has_melee_applied_damage := false
 var _sleeping := false
+var night_vision := true
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -391,7 +392,7 @@ func _input(event: InputEvent) -> void:
 		if _health == 0.0:
 			return
 		_reloading_gun = false
-	if Input.is_action_pressed("use") and can_use():
+	if event.is_action_pressed("use") and can_use():
 		if _aiming_at_interactable is Grabbable:
 			_grabbing = _aiming_at_interactable
 		elif _aiming_at_interactable is Bed:
@@ -404,8 +405,10 @@ func _input(event: InputEvent) -> void:
 			finished_sleeping.emit()
 		else:
 			push_error("Unexpected state")
-	if Input.is_action_pressed("melee") and can_melee():
+	if event.is_action_pressed("melee") and can_melee():
 		_last_melee_at = Util.get_ticks_sec()
+	if event.is_action_pressed("toggle_night_vision") and _health > 0.0:
+		night_vision = not night_vision
 
 
 func _bring_weapon_down() -> void:

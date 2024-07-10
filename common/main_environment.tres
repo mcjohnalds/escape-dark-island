@@ -1,11 +1,19 @@
-[gd_resource type="Environment" load_steps=2 format=3 uid="uid://cj5a4clofvpeq"]
-
-[ext_resource type="Sky" uid="uid://d1lrdwghb86fs" path="res://common/sky.tres" id="1_li5tu"]
+[gd_resource type="Environment" format=3 uid="uid://cj5a4clofvpeq"]
 
 [resource]
-background_mode = 2
-sky = ExtResource("1_li5tu")
+background_mode = 1
+background_color = Color(0.0392157, 0.0470588, 0.0588235, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.0392157, 0.0470588, 0.0588235, 1)
+ambient_light_energy = 16.0
 tonemap_mode = 2
+ssao_enabled = true
+ssao_radius = 0.24
+ssao_intensity = 1600.0
+ssao_power = 0.200958
+ssao_horizon = 0.51
+ssao_light_affect = 0.26
+ssao_ao_channel_affect = 0.71
 glow_enabled = true
 glow_intensity = 0.3
 glow_bloom = 0.01
@@ -14,7 +22,7 @@ fog_enabled = true
 fog_mode = 1
 fog_light_color = Color(0.0375556, 0.0451889, 0.0572105, 1)
 fog_density = 1.0
-fog_depth_curve = 0.0717932
+fog_depth_curve = 0.07
 fog_depth_begin = 0.0
 fog_depth_end = 20.0
 volumetric_fog_density = 0.02

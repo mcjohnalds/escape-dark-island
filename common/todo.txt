@@ -1,13 +1,14 @@
 Todo:
 
-- Light level affected by NV and location
-- Bubble
+- Make player home outside look pretty
 - More buildings
-- Toggle night vision
 - Heightmap
 - Respawning
 - Hardcore mode
 - Saving/loading
+- Notes on wall or something that explains the lore
+- Randomly appearing messages in black goo like "go away"
+- Enemies do not enter home
 
 - Baked lighting
 - Give a "+1 bandage" message/animation

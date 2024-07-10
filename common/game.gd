@@ -21,6 +21,8 @@ var _mouse_mode_mismatch_count := 0
 @onready var _gun_icon: ItemIcon = %GunIcon
 @onready var _grenade_icon: ItemIcon = %GrenadeIcon
 @onready var _bandages_icon: ItemIcon = %BandagesIcon
+@onready var _night_vision_shader: Control = %NightVisionShader
+@onready var _level: Level = %Level
 
 
 func _ready() -> void:
@@ -49,6 +51,17 @@ func _process(delta: float) -> void:
 	_update_ammo_label()
 	_update_crosshair()
 	_update_item_icons()
+	var nv: bool = global.get_player().night_vision
+	_night_vision_shader.visible = nv
+	_level.directional_light.visible = nv
+	for light in _level.get_omni_lights():
+		light.light_energy = 5.0 if nv else 0.1
+	_level.world_environment.environment.fog_enabled = nv
+	_level.world_environment.environment.ambient_light_energy = 16.0 if nv else 0.5
+	_level.world_environment.environment.background_energy_multiplier = 1.0 if nv else 0.0
+	# _level.world_environment.environment.fog_depth_begin = 0 if nv else 10
+	# _level.world_environment.environment.fog_depth_curve = 0.07 if nv else 1.0
+	# _level.world_environment.environment.background_energy_multiplier = 1.0 if nv else 10000.0
 
 
 func _update_sprint_bar(delta: float) -> void:

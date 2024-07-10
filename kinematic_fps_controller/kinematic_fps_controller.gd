@@ -53,6 +53,10 @@ var _grabbing: Grabbable = null
 var _last_melee_at := -1000.0
 var _has_melee_applied_damage := false
 var _sleeping := false
+# We need to track shoot button down state instead of just relying on
+# Input.is_action_pressed("shoot") so the gun doesn't shoot when the player
+# clicks the unpause button.
+var _shoot_button_down := false
 var night_vision := true
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
@@ -244,6 +248,8 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if not Input.is_action_pressed("shoot"):
+		_shoot_button_down = false
 	_update_movement(delta)
 	_update_gun_shooting(delta)
 	_update_grenade(delta)
@@ -299,7 +305,6 @@ func _input(event: InputEvent) -> void:
 		var dy := angle_difference(rotation.y, last_y)
 		_weapon_linear_velocity += Vector3(-dy, dx, 0.0)
 		_weapon_angular_velocity += Vector3(dx, dy, 0.0)
-
 	if event.is_action_pressed("move_crouch"):
 		_crouch_audio_stream_player.stream = crouch_audios.pick_random()
 		_crouch_audio_stream_player.play()
@@ -410,6 +415,10 @@ func _input(event: InputEvent) -> void:
 		_last_melee_at = Util.get_ticks_sec()
 	if event.is_action_pressed("toggle_night_vision") and _health > 0.0:
 		night_vision = not night_vision
+	if event.is_action_pressed("shoot"):
+		_shoot_button_down = true
+	if event.is_action_released("shoot"):
+		_shoot_button_down = false
 
 
 func _bring_weapon_down() -> void:
@@ -854,7 +863,7 @@ func _update_gun_shooting(delta: float) -> void:
 		and _weapon_type == WeaponType.GUN
 		and _gun_ammo_in_magazine > 0
 		and not _switching_weapon
-		and Input.is_action_pressed("shoot")
+		and _shoot_button_down
 		and Util.get_ticks_sec() - _gun_last_fired_at > 1.0 / fire_rate
 		and not is_meleeing()
 		and not _sleeping

@@ -3,6 +3,7 @@ class_name Level
 
 @onready var directional_light: DirectionalLight3D = %DirectionalLight
 @onready var world_environment: WorldEnvironment  = %WorldEnvironment
+@onready var fuel_indicator_3d := %FuelIndicator3D
 @onready var _omni_lights := %OmniLights
 
 

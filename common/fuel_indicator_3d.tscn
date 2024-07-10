@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3 uid="uid://ekmrthma144t"]
+
+[ext_resource type="Script" path="res://common/fuel_indicator_3d.gd" id="1_aifxd"]
+[ext_resource type="PackedScene" uid="uid://lf7jd2550jxv" path="res://common/fuel_indicator_2d.tscn" id="1_gtijn"]
+
+[sub_resource type="ViewportTexture" id="ViewportTexture_t7oxi"]
+viewport_path = NodePath("SubViewport")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oq8br"]
+resource_local_to_scene = true
+shading_mode = 0
+albedo_texture = SubResource("ViewportTexture_t7oxi")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_dj7tx"]
+size = Vector2(4, 1)
+
+[node name="FuelIndicator3D" type="Node3D"]
+script = ExtResource("1_aifxd")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = SubResource("StandardMaterial3D_oq8br")
+mesh = SubResource("PlaneMesh_dj7tx")
+
+[node name="SubViewport" type="SubViewport" parent="."]
+disable_3d = true
+transparent_bg = true
+size = Vector2i(185, 45)
+
+[node name="FuelIndicator2D" parent="SubViewport" instance=ExtResource("1_gtijn")]
+unique_name_in_owner = true
+offset_right = 0.0
+offset_bottom = 0.0

@@ -9,6 +9,7 @@ signal finished_sleeping
 var _paused := false
 var _desired_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_mismatch_count := 0
+var _fuel := 300
 @onready var _container: Node3D = $Container
 @onready var _main_menu: MainMenu = %MainMenu
 @onready var _menu_container = %MenuContainer
@@ -29,7 +30,7 @@ func _ready() -> void:
 	_main_menu.resumed.connect(_unpause)
 	_main_menu.restarted.connect(restarted.emit)
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	global.get_player().started_sleeping.connect(started_sleeping.emit)
+	global.get_player().started_sleeping.connect(_on_started_sleeping)
 	global.get_player().finished_sleeping.connect(finished_sleeping.emit)
 	randomize_level()
 
@@ -62,6 +63,7 @@ func _process(delta: float) -> void:
 	# _level.world_environment.environment.fog_depth_begin = 0 if nv else 10
 	# _level.world_environment.environment.fog_depth_curve = 0.07 if nv else 1.0
 	# _level.world_environment.environment.background_energy_multiplier = 1.0 if nv else 10000.0
+	_level.fuel_indicator_3d.litres = _fuel
 
 
 func _update_sprint_bar(delta: float) -> void:
@@ -183,3 +185,8 @@ func randomize_level() -> void:
 	_randomize_grabbable_group("grabbable_ammo", 3.0, 1.0)
 	_randomize_grabbable_group("grabbable_grenades", 2.0, 1.0)
 	_randomize_grabbable_group("grabbable_bandages", 2.0, 1.0)
+
+
+func _on_started_sleeping() -> void:
+	started_sleeping.emit()
+	_fuel -= 20

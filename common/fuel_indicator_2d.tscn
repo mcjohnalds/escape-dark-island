@@ -1,0 +1,74 @@
+[gd_scene load_steps=5 format=3 uid="uid://lf7jd2550jxv"]
+
+[ext_resource type="Script" path="res://common/fuel_indicator_2d.gd" id="1_o6cdw"]
+[ext_resource type="PackedScene" uid="uid://ff3oqsj7dv02" path="res://ui/custom_label.tscn" id="1_q4mnx"]
+[ext_resource type="FontFile" uid="uid://bvi0lhpwxksn" path="res://ui/turret_road_bold.ttf" id="2_y2x05"]
+[ext_resource type="FontFile" uid="uid://dnuikshmkv3b" path="res://ui/jaro_36pt_regular.ttf" id="4_q5vnx"]
+
+[node name="FuelIndicator2D" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -967.0
+offset_bottom = -603.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_o6cdw")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.103744, 0.103744, 0.103744, 1)
+
+[node name="Title" parent="." instance=ExtResource("1_q4mnx")]
+layout_mode = 1
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 8.0
+offset_right = 164.0
+offset_bottom = 69.0
+grow_horizontal = 1
+grow_vertical = 1
+scale = Vector2(0.461965, 0.624923)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("4_q5vnx")
+theme_override_font_sizes/font_size = 32
+text = "POWERTRON
+GENERATOR"
+type = 4
+
+[node name="Header" parent="." instance=ExtResource("1_q4mnx")]
+layout_mode = 1
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 92.0
+offset_top = 4.0
+offset_right = 178.0
+offset_bottom = 26.0
+grow_horizontal = 1
+grow_vertical = 1
+theme_override_fonts/font = ExtResource("2_y2x05")
+theme_override_font_sizes/font_size = 20
+text = "FUEL"
+type = 1
+
+[node name="Body" parent="." instance=ExtResource("1_q4mnx")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 92.0
+offset_top = 22.0
+offset_right = 178.0
+offset_bottom = 43.0
+grow_horizontal = 1
+grow_vertical = 1
+text = "300 LITRES"

@@ -1,6 +1,7 @@
 Todo:
 
 - Add fuel mechanic
+  - If fuel is empty, lights go dark and bad shit happens
 - Make player home outside look pretty
 - More buildings
 - Heightmap
@@ -11,6 +12,8 @@ Todo:
 - Randomly appearing messages in black goo like "go away"
 - Enemies do not enter home
 - Fix pause to see in dark exploit
+- Bake lighting in blender
+- Tutorial
 
 - Baked lighting
 - Give a "+1 bandage" message/animation

@@ -1037,7 +1037,7 @@ transform = Transform3D(0.772983, -0.501031, 0.389185, 0.486469, 0.861859, 0.143
 unique_name_in_owner = true
 
 [node name="KinematicFpsController" parent="." instance=ExtResource("2_iewf8")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.54428, 0)
+transform = Transform3D(0.763503, 0, -0.645804, 0, 1, 0, 0.645804, 0, 0.763503, 15.6808, 0.96794, 2.60617)
 
 [node name="DirectionalLight" type="DirectionalLight3D" parent="."]
 unique_name_in_owner = true

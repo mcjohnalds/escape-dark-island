@@ -3,6 +3,7 @@ class_name KinematicFpsController
 
 enum WeaponType { GUN, GRENADE, BANDAGES }
 signal sleep_attemped
+signal died
 
 @export var melee_duration := 0.4
 @export var melee_range := 2.0
@@ -69,6 +70,8 @@ var night_vision := true
 @onready var _initial_weapon_rotation: Vector3 = _weapon.rotation
 @onready var _weapon_last_position := _target_weapon_position
 @onready var _weapon_last_rotation := _target_weapon_rotation
+@onready var _initial_position := position
+@onready var _initial_rotation := rotation
 
 @export_group("Audio")
 
@@ -286,7 +289,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and OS.is_debug_build():
 		var e: InputEventKey = event
 		if e.keycode == KEY_L and e.pressed:
-			damage(1.0)
+			damage(10.0)
 	if event is InputEventMouseMotion:
 		var e: InputEventMouseMotion = event
 		var s: float = mouse_sensitivity / 1000.0 * global.mouse_sensitivity
@@ -991,6 +994,10 @@ func _update_weapon_linear_velocity(delta: float) -> void:
 	_weapon_linear_velocity = _weapon_linear_velocity.limit_length(7.0)
 	_weapon_last_position = _weapon.position
 	_weapon.position += _weapon_linear_velocity * delta
+	_weapon.position = (
+		_initial_weapon_position
+		+ (_weapon.position - _initial_weapon_position).limit_length(1.0)
+	)
 
 
 func _update_weapon_angular_velocity(delta: float) -> void:
@@ -1014,6 +1021,7 @@ func _update_camera_linear_velocity(delta: float) -> void:
 	_camera_linear_velocity += accel * delta
 	_last_camera_position = _camera.position
 	_camera.position += _camera_linear_velocity * delta
+	_camera.position = _camera.position.limit_length(0.3)
 
 
 func _update_camera_angular_velocity(delta: float) -> void:
@@ -1029,7 +1037,9 @@ func _update_camera_angular_velocity(delta: float) -> void:
 
 func _update_interaction(delta: float) -> void:
 	var query := PhysicsRayQueryParameters3D.new()
-	query.collision_mask = Global.PhysicsLayer.INTERACTABLE
+	query.collision_mask = (
+		Global.PhysicsLayer.DEFAULT | Global.PhysicsLayer.INTERACTABLE
+	)
 	query.from = _camera.global_position
 	var dir := -_camera.global_basis.z
 	query.to = _camera.global_position + max_grab_range * dir
@@ -1142,18 +1152,20 @@ func damage(amount: float) -> void:
 		_health = 0.0
 		_target_weapon_position = _initial_weapon_position + Vector3.DOWN * 0.1
 		_target_weapon_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
-		_fade_in_death_overlay()
+		await _fade_in_death_overlay()
+		died.emit()
 
 
 func _fade_in_death_overlay() -> void:
 	var tween := create_tween()
 	(
 		tween.tween_property(
-			global.get_death_overlay(), "modulate:a", 1.0, 10.0
+			global.get_death_overlay(), "modulate:a", 1.0, 3.0
 		)
 			.set_trans(Tween.TRANS_EXPO)
 			.set_ease(Tween.EASE_OUT)
 	)
+	await tween.finished
 
 
 func get_gun_ammo_in_magazine() -> int:
@@ -1241,3 +1253,13 @@ func start_sleeping() -> void:
 
 func stop_sleeping() -> void:
 	_sleeping = false
+
+
+func respawn() -> void:
+	position = _initial_position
+	rotation = _initial_rotation
+	_bring_weapon_up()
+	_gun_ammo_in_inventory /= 2
+	_grenade_count /= 2
+	_bandages_in_inventory /= 2
+	global.get_death_overlay().modulate.a = 0.0

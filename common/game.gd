@@ -33,6 +33,7 @@ func _ready() -> void:
 	_main_menu.restarted.connect(restarted.emit)
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	global.get_player().sleep_attemped.connect(_on_sleep_attempted)
+	global.get_player().died.connect(_on_died)
 	respawn_contents()
 
 
@@ -106,13 +107,15 @@ func _update_ammo_label() -> void:
 func _update_crosshair() -> void:
 	var p := global.get_player()
 	_shoot_crosshair.visible = (
-		not _screen_message.visible
+		p.get_health() > 0.0
+		and not _screen_message.visible
 		and not p.is_switching_weapon()
 		and not p.is_meleeing()
 		and not p.can_use()
 	)
 	_grab_crosshair.visible = (
-		not _screen_message.visible
+		p.get_health() > 0.0
+		and not _screen_message.visible
 		and not p.is_switching_weapon()
 		and not p.is_meleeing()
 		and p.can_use()
@@ -172,6 +175,17 @@ func _on_sleep_attempted() -> void:
 	started_sleeping.emit()
 	_fuel -= 20.0
 	respawn_contents()
+	await get_tree().create_timer(1.0).timeout
+	global.get_player().stop_sleeping()
+	finished_sleeping.emit()
+
+
+func _on_died() -> void:
+	global.get_player().start_sleeping()
+	started_sleeping.emit()
+	_fuel -= 20.0
+	respawn_contents()
+	global.get_player().respawn()
 	await get_tree().create_timer(1.0).timeout
 	global.get_player().stop_sleeping()
 	finished_sleeping.emit()

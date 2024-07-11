@@ -1,13 +1,15 @@
 Todo:
 
-- More buildings
+- Fuel indicator flashes when at 0
+- Ending
 - Heightmap
-- Saving/loading
 - Notes on wall or something that explains the lore
-- Randomly appearing messages in black goo like "go away"
 - Enemies do not enter home
 - Fix pause to see in dark exploit
 - Tutorial
+- More buildings
+- Randomly appearing messages in black goo like "go away"
+- Make sleeping finished transition less glitchy
 
 - Hardcore mode
 - Bake lighting in blender

@@ -9,9 +9,9 @@ signal finished_sleeping
 var _paused := false
 var _desired_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_mismatch_count := 0
-# var _fuel := 200.0
+var _fuel := 200.0
 # var _fuel := 10.0
-var _fuel := 0.1
+# var _fuel := 0.2
 var _player_home_light_energy_level := 1.0
 @onready var _main_menu: MainMenu = %MainMenu
 @onready var _menu_container = %MenuContainer

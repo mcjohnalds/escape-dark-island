@@ -11,6 +11,7 @@ enum PhysicsLayer {
 }
 
 @export var environments: Array[Environment] = []
+@export var _enemy_scene: PackedScene
 var mouse_sensitivity := 0.25
 var invert_mouse := false
 var _graphics_preset: GraphicsPreset = GraphicsPreset.MEDIUM
@@ -155,3 +156,7 @@ func get_death_overlay() -> ColorRect:
 
 func get_level() -> Node3D:
 	return get_tree().get_first_node_in_group("level")
+
+
+func get_enemy_scene() -> PackedScene:
+	return _enemy_scene

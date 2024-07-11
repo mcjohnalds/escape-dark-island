@@ -6,14 +6,12 @@ signal started_sleeping
 signal finished_sleeping
 
 @export var fuel_loss_per_second := 0.01
-@export var enemy_scene: PackedScene
 var _paused := false
 var _desired_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_mismatch_count := 0
 # var _fuel := 200.0
-var _fuel := 0.10
+var _fuel := 10.0
 var _player_home_light_energy_level := 1.0
-@onready var _container: Node3D = $Container
 @onready var _main_menu: MainMenu = %MainMenu
 @onready var _menu_container = %MenuContainer
 @onready var _health_label: Label = %HealthLabel
@@ -35,7 +33,7 @@ func _ready() -> void:
 	_main_menu.restarted.connect(restarted.emit)
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	global.get_player().sleep_attemped.connect(_on_sleep_attempted)
-	randomize_level()
+	respawn_contents()
 
 
 func _process(delta: float) -> void:
@@ -60,21 +58,23 @@ func _process(delta: float) -> void:
 	_update_item_icons()
 	var nv: bool = global.get_player().night_vision
 	_night_vision_shader.visible = nv
-	_level.directional_light.visible = nv
+	_level.get_directional_light().visible = nv
 	for light in _level.get_omni_lights():
 		if _fuel == 0.0:
 			_player_home_light_energy_level = lerpf(
 				_player_home_light_energy_level, 0.0, delta * 5.0
 			)
 		light.light_energy = (
-			5.0 if nv else _player_home_light_energy_level * 0.1
+			(5.0 if nv else 0.1) * _player_home_light_energy_level
 		)
-		_level.set_light_mesh_emission_energy(_player_home_light_energy_level)
-	var env := _level.world_environment.environment
+		_level.get_light_mesh_material().emission_energy_multiplier = (
+			_player_home_light_energy_level
+		)
+	var env := get_viewport().world_3d.environment
 	env.fog_enabled = nv
 	env.ambient_light_energy = 16.0 if nv else 0.5
 	env.background_energy_multiplier = 1.0 if nv else 0.0
-	_level.fuel_indicator_3d.litres = _fuel
+	_level.get_fuel_indicator_3d().litres = _fuel
 
 
 func _update_sprint_bar(delta: float) -> void:
@@ -149,14 +149,14 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _pause() -> void:
 	_paused = true
-	_container.process_mode = Node.PROCESS_MODE_DISABLED
+	_level.process_mode = Node.PROCESS_MODE_DISABLED
 	_menu_container.visible = true
 	set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 
 
 func _unpause() -> void:
 	_paused = false
-	_container.process_mode = Node.PROCESS_MODE_INHERIT
+	_level.process_mode = Node.PROCESS_MODE_INHERIT
 	_menu_container.visible = false
 	_main_menu.settings_open = false
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -167,43 +167,11 @@ func set_mouse_mode(mode: Input.MouseMode) -> void:
 	Input.mouse_mode = mode
 
 
-func _spawn_enemy() -> void:
-	for enemy: Enemy in get_tree().get_nodes_in_group("enemies"):
-		enemy.queue_free()
-	var enemy_spawn: Node3D = (
-		get_tree().get_nodes_in_group("retreat_locations").pick_random()
-	)
-	var enemy: Enemy = enemy_scene.instantiate()
-	enemy.position = enemy_spawn.global_position
-	add_child(enemy)
-
-
-func _randomize_grabbable_group(
-	group_name: String, mean: float, deviation: float
-) -> void:
-	var grabbables := get_tree().get_nodes_in_group(group_name)
-	var random_count := clampi(
-		roundi(randfn(mean, deviation)), 1, grabbables.size()
-	)
-	for i in random_count:
-		var j := randi_range(0, grabbables.size() - 1)
-		grabbables[j].reset()
-		grabbables.remove_at(j)
-	for grabbable in grabbables:
-		grabbable.disable()
-
-
-func randomize_level() -> void:
-	_spawn_enemy()
-	_randomize_grabbable_group("grabbable_ammo", 3.0, 1.0)
-	_randomize_grabbable_group("grabbable_grenades", 2.0, 1.0)
-	_randomize_grabbable_group("grabbable_bandages", 2.0, 1.0)
-
-
 func _on_sleep_attempted() -> void:
 	global.get_player().start_sleeping()
 	started_sleeping.emit()
 	_fuel -= 20.0
+	respawn_contents()
 	await get_tree().create_timer(1.0).timeout
 	global.get_player().stop_sleeping()
 	finished_sleeping.emit()
@@ -214,3 +182,10 @@ func _display_screen_message(text: String) -> void:
 	_screen_message.visible = true
 	await get_tree().create_timer(3.0).timeout
 	_screen_message.visible = false
+
+
+func respawn_contents() -> void:
+	_level.get_enemy_building().respawn_enemy()
+	_level.get_enemy_building().respawn_grabbables()
+	if _fuel == 0.0:
+		_level.get_player_home().respawn_enemy()

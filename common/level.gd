@@ -1,11 +1,12 @@
 extends Node3D
 class_name Level
 
-@onready var directional_light: DirectionalLight3D = %DirectionalLight
-@onready var world_environment: WorldEnvironment  = %WorldEnvironment
-@onready var fuel_indicator_3d := %FuelIndicator3D
+@onready var _directional_light: DirectionalLight3D = %DirectionalLight
 @onready var _omni_lights := %OmniLights
 @onready var _mesh: Node3D = %Mesh
+@onready var _player_home: Building = %PlayerHome
+@onready var _enemy_building: Building = %EnemyBuilding
+@onready var _fuel_indicator_3d: FuelIndicator3D = %FuelIndicator3D
 var _light_mesh_material: StandardMaterial3D
 
 
@@ -15,16 +16,14 @@ func _ready() -> void:
 			continue
 		var child_mesh: MeshInstance3D = child
 		for i in child_mesh.mesh.get_surface_count():
-			if (
-				not child_mesh.mesh.surface_get_material(i)
-				is StandardMaterial3D
-			):
+			var material := child_mesh.mesh.surface_get_material(i)
+			if not material is StandardMaterial3D:
 				continue
-			var material: StandardMaterial3D = (
+			var standard: StandardMaterial3D = (
 				child_mesh.mesh.surface_get_material(i)
 			)
-			if material.emission_enabled:
-				_light_mesh_material = material
+			if standard.emission_enabled:
+				_light_mesh_material = standard
 
 
 func get_omni_lights() -> Array[OmniLight3D]:
@@ -34,5 +33,21 @@ func get_omni_lights() -> Array[OmniLight3D]:
 	return arr
 
 
-func set_light_mesh_emission_energy(emission_energy: float) -> void:
-	_light_mesh_material.emission_energy_multiplier = emission_energy
+func get_light_mesh_material() -> StandardMaterial3D:
+	return _light_mesh_material
+
+
+func get_directional_light() -> DirectionalLight3D:
+	return _directional_light
+
+
+func get_fuel_indicator_3d() -> FuelIndicator3D:
+	return _fuel_indicator_3d
+
+
+func get_player_home() -> Building:
+	return _player_home
+
+
+func get_enemy_building() -> Building:
+	return _enemy_building

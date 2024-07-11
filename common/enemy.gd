@@ -5,6 +5,7 @@ enum State { IDLE, ATTACK, RETREAT }
 
 @export var black_goo_explosion_scene: PackedScene
 @export var eye_explosion_scene: PackedScene
+@export var retreat_locations: Array[Node3D] = []
 var min_retreat_duration := 5.0
 var movement_speed := 8.0
 var retreat_damage_threshold := 20.0
@@ -270,7 +271,7 @@ func _update_attack() -> void:
 
 func _get_best_retreat_location() -> Node3D:
 	var target: Node3D = null
-	for node: Node3D in get_tree().get_nodes_in_group("retreat_locations"):
+	for node: Node3D in retreat_locations:
 		if not target:
 			if _get_retreat_position_score(node.global_position) > 0.0:
 				target = node

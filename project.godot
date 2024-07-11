@@ -41,16 +41,12 @@ enabled=PackedStringArray()
 [global_group]
 
 player=""
-retreat_locations=""
 debug_sphere=""
 debug_arrow=""
 blood_overlay=""
 death_overlay=""
 level=""
 enemies=""
-grabbable_ammo=""
-grabbable_bandages=""
-grabbable_grenades=""
 
 [gui]
 

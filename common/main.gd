@@ -80,4 +80,4 @@ func _fade_in() -> void:
 
 func _on_started_sleeping() -> void:
 	await _fade_out()
-	_game.randomize_level()
+	_game.respawn_contents()

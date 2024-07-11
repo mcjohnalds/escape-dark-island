@@ -2,8 +2,7 @@ extends CharacterBody3D
 class_name KinematicFpsController
 
 enum WeaponType { GUN, GRENADE, BANDAGES }
-signal started_sleeping
-signal finished_sleeping
+signal sleep_attemped
 
 @export var melee_duration := 0.4
 @export var melee_range := 2.0
@@ -402,13 +401,7 @@ func _input(event: InputEvent) -> void:
 		if _aiming_at_interactable is Grabbable:
 			_grabbing = _aiming_at_interactable
 		elif _aiming_at_interactable is Bed:
-			_sleeping = true
-			started_sleeping.emit()
-			await get_tree().create_timer(1.0).timeout
-			_sleeping = false
-			_health = max_health
-			sprint_energy = 1.0
-			finished_sleeping.emit()
+			sleep_attemped.emit()
 		else:
 			push_error("Unexpected state")
 	if event.is_action_pressed("melee") and can_melee():
@@ -1238,3 +1231,13 @@ func is_meleeing() -> bool:
 
 func get_center() -> Vector3:
 	return _center.position
+
+
+func start_sleeping() -> void:
+	_sleeping = true
+	_health = max_health
+	sprint_energy = 1.0
+
+
+func stop_sleeping() -> void:
+	_sleeping = false

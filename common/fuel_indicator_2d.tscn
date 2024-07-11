@@ -10,7 +10,7 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = -967.0
+offset_right = -949.0
 offset_bottom = -603.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -59,7 +59,7 @@ theme_override_font_sizes/font_size = 20
 text = "FUEL"
 type = 1
 
-[node name="Body" parent="." instance=ExtResource("1_q4mnx")]
+[node name="Number" parent="." instance=ExtResource("1_q4mnx")]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 0
@@ -71,4 +71,19 @@ offset_right = 178.0
 offset_bottom = 43.0
 grow_horizontal = 1
 grow_vertical = 1
-text = "300 LITRES"
+text = "300.01"
+
+[node name="Unit" parent="." instance=ExtResource("1_q4mnx")]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 92.0
+offset_top = 22.0
+offset_right = 197.0
+offset_bottom = 43.0
+grow_horizontal = 1
+grow_vertical = 1
+text = "LITRES"
+horizontal_alignment = 2

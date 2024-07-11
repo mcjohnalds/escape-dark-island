@@ -1,20 +1,18 @@
 Todo:
 
-- Add fuel mechanic
-  - If fuel is empty, lights go dark and bad shit happens
-- Make player home outside look pretty
 - More buildings
 - Heightmap
-- Respawning
-- Hardcore mode
 - Saving/loading
 - Notes on wall or something that explains the lore
 - Randomly appearing messages in black goo like "go away"
 - Enemies do not enter home
 - Fix pause to see in dark exploit
-- Bake lighting in blender
 - Tutorial
 
+- Hardcore mode
+- Bake lighting in blender
+- Make player home outside look pretty
+- Add more detail to homes
 - Baked lighting
 - Give a "+1 bandage" message/animation
 - Skin UI

@@ -12,7 +12,7 @@ shading_mode = 0
 albedo_texture = SubResource("ViewportTexture_t7oxi")
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_dj7tx"]
-size = Vector2(4, 1)
+size = Vector2(4.511, 1)
 
 [node name="FuelIndicator3D" type="Node3D"]
 script = ExtResource("1_aifxd")
@@ -24,9 +24,9 @@ mesh = SubResource("PlaneMesh_dj7tx")
 [node name="SubViewport" type="SubViewport" parent="."]
 disable_3d = true
 transparent_bg = true
-size = Vector2i(185, 45)
+size = Vector2i(203, 45)
 
 [node name="FuelIndicator2D" parent="SubViewport" instance=ExtResource("1_gtijn")]
 unique_name_in_owner = true
-offset_right = 0.0
+offset_right = 18.0
 offset_bottom = 0.0

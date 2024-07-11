@@ -5,11 +5,14 @@ signal restarted
 signal started_sleeping
 signal finished_sleeping
 
+@export var fuel_loss_per_second := 0.01
 @export var enemy_scene: PackedScene
 var _paused := false
 var _desired_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_mismatch_count := 0
-var _fuel := 300
+# var _fuel := 200.0
+var _fuel := 0.10
+var _player_home_light_energy_level := 1.0
 @onready var _container: Node3D = $Container
 @onready var _main_menu: MainMenu = %MainMenu
 @onready var _menu_container = %MenuContainer
@@ -24,18 +27,21 @@ var _fuel := 300
 @onready var _bandages_icon: ItemIcon = %BandagesIcon
 @onready var _night_vision_shader: Control = %NightVisionShader
 @onready var _level: Level = %Level
+@onready var _screen_message: CustomLabel = %ScreenMessage
 
 
 func _ready() -> void:
 	_main_menu.resumed.connect(_unpause)
 	_main_menu.restarted.connect(restarted.emit)
 	set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-	global.get_player().started_sleeping.connect(_on_started_sleeping)
-	global.get_player().finished_sleeping.connect(finished_sleeping.emit)
+	global.get_player().sleep_attemped.connect(_on_sleep_attempted)
 	randomize_level()
 
 
 func _process(delta: float) -> void:
+	_fuel -= delta * fuel_loss_per_second
+	if _fuel < 0.0:
+		_fuel = 0.0
 	# Deal with the bullshit that can happen when the browser takes away the
 	# game's pointer lock
 	if (
@@ -56,13 +62,18 @@ func _process(delta: float) -> void:
 	_night_vision_shader.visible = nv
 	_level.directional_light.visible = nv
 	for light in _level.get_omni_lights():
-		light.light_energy = 5.0 if nv else 0.1
-	_level.world_environment.environment.fog_enabled = nv
-	_level.world_environment.environment.ambient_light_energy = 16.0 if nv else 0.5
-	_level.world_environment.environment.background_energy_multiplier = 1.0 if nv else 0.0
-	# _level.world_environment.environment.fog_depth_begin = 0 if nv else 10
-	# _level.world_environment.environment.fog_depth_curve = 0.07 if nv else 1.0
-	# _level.world_environment.environment.background_energy_multiplier = 1.0 if nv else 10000.0
+		if _fuel == 0.0:
+			_player_home_light_energy_level = lerpf(
+				_player_home_light_energy_level, 0.0, delta * 5.0
+			)
+		light.light_energy = (
+			5.0 if nv else _player_home_light_energy_level * 0.1
+		)
+		_level.set_light_mesh_emission_energy(_player_home_light_energy_level)
+	var env := _level.world_environment.environment
+	env.fog_enabled = nv
+	env.ambient_light_energy = 16.0 if nv else 0.5
+	env.background_energy_multiplier = 1.0 if nv else 0.0
 	_level.fuel_indicator_3d.litres = _fuel
 
 
@@ -95,12 +106,14 @@ func _update_ammo_label() -> void:
 func _update_crosshair() -> void:
 	var p := global.get_player()
 	_shoot_crosshair.visible = (
-		not p.is_switching_weapon()
+		not _screen_message.visible
+		and not p.is_switching_weapon()
 		and not p.is_meleeing()
 		and not p.can_use()
 	)
 	_grab_crosshair.visible = (
-		not p.is_switching_weapon()
+		not _screen_message.visible
+		and not p.is_switching_weapon()
 		and not p.is_meleeing()
 		and p.can_use()
 	)
@@ -187,6 +200,17 @@ func randomize_level() -> void:
 	_randomize_grabbable_group("grabbable_bandages", 2.0, 1.0)
 
 
-func _on_started_sleeping() -> void:
+func _on_sleep_attempted() -> void:
+	global.get_player().start_sleeping()
 	started_sleeping.emit()
-	_fuel -= 20
+	_fuel -= 20.0
+	await get_tree().create_timer(1.0).timeout
+	global.get_player().stop_sleeping()
+	finished_sleeping.emit()
+
+
+func _display_screen_message(text: String) -> void:
+	_screen_message.text = text
+	_screen_message.visible = true
+	await get_tree().create_timer(3.0).timeout
+	_screen_message.visible = false

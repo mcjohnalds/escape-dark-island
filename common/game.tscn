@@ -140,6 +140,21 @@ grow_vertical = 2
 texture = ExtResource("8_k4ypl")
 expand_mode = 1
 
+[node name="ScreenMessage" parent="." instance=ExtResource("6_pjl4h")]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -61.0
+offset_top = -10.5
+offset_right = 61.0
+offset_bottom = 10.5
+text = "Screen Message"
+horizontal_alignment = 1
+
 [node name="ItemIcons" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0

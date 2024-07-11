@@ -2,7 +2,7 @@ extends Node3D
 class_name FuelIndicator3D
 
 
-@export var litres := 300:
+@export var litres := 300.0:
 	set(value):
 		litres = value
 		if not is_node_ready():

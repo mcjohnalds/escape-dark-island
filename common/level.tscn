@@ -1028,7 +1028,8 @@ transform = Transform3D(-0.797133, 0.0122708, -0.603679, 0.603455, 0.0501463, -0
 [node name="GrabbableGrenade24" parent="House1/Interactables" instance=ExtResource("8_7vqsq")]
 transform = Transform3D(0.772983, -0.501031, 0.389185, 0.486469, 0.861859, 0.14334, -0.407241, 0.0785268, 0.909939, -12.0135, 0.332785, -6.57204)
 
-[node name="level" parent="." instance=ExtResource("1_w1tfj")]
+[node name="Mesh" parent="." instance=ExtResource("1_w1tfj")]
+unique_name_in_owner = true
 
 [node name="KinematicFpsController" parent="." instance=ExtResource("2_iewf8")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.54428, 0)
@@ -1541,6 +1542,28 @@ light_energy = 0.1
 light_specular = 1.0
 omni_range = 8.0
 
+[node name="OmniLight3D5" type="OmniLight3D" parent="House2/OmniLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.8167, 0.657207, -4.26198)
+light_color = Color(0.992727, 0.910536, 0.881104, 1)
+light_energy = 0.1
+light_specular = 1.0
+omni_range = 3.341
+omni_attenuation = 1.2
+
 [node name="FuelIndicator3D" parent="House2" instance=ExtResource("11_rkvrj")]
 unique_name_in_owner = true
 transform = Transform3D(-0.0722945, -6.32019e-09, -2.00196e-16, -3.8944e-09, 0.0445467, -0.0569393, 4.97779e-09, -0.0569393, -0.0445467, 15.7982, 0.685829, -4.06652)
+
+[node name="RetreatLocations" type="Node" parent="House2"]
+
+[node name="RetreatLocation1" type="Node3D" parent="House2/RetreatLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.96799, 0.168574, 1.29023)
+
+[node name="RetreatLocation2" type="Node3D" parent="House2/RetreatLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.96799, 0.168574, 3.46639)
+
+[node name="RetreatLocation3" type="Node3D" parent="House2/RetreatLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5085, 0.168574, -0.775763)
+
+[node name="RetreatLocation4" type="Node3D" parent="House2/RetreatLocations"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5668, 0.168574, -4.19484)

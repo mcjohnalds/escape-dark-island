@@ -10,7 +10,8 @@ var _paused := false
 var _desired_mouse_mode := Input.MOUSE_MODE_VISIBLE
 var _mouse_mode_mismatch_count := 0
 # var _fuel := 200.0
-var _fuel := 10.0
+# var _fuel := 10.0
+var _fuel := 0.1
 var _player_home_light_energy_level := 1.0
 @onready var _main_menu: MainMenu = %MainMenu
 @onready var _menu_container = %MenuContainer
@@ -174,8 +175,11 @@ func _on_sleep_attempted() -> void:
 	global.get_player().start_sleeping()
 	started_sleeping.emit()
 	_fuel -= 20.0
+	if _fuel < 0.0:
+		_fuel = 0.0
 	respawn_contents()
 	await get_tree().create_timer(1.0).timeout
+	global.get_player().night_vision = _fuel == 0.0
 	global.get_player().stop_sleeping()
 	finished_sleeping.emit()
 
@@ -184,9 +188,12 @@ func _on_died() -> void:
 	global.get_player().start_sleeping()
 	started_sleeping.emit()
 	_fuel -= 20.0
+	if _fuel < 0.0:
+		_fuel = 0.0
 	respawn_contents()
 	global.get_player().respawn()
 	await get_tree().create_timer(1.0).timeout
+	global.get_player().night_vision = _fuel == 0.0
 	global.get_player().stop_sleeping()
 	finished_sleeping.emit()
 

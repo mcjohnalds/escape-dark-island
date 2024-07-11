@@ -1,6 +1,5 @@
 Todo:
 
-- Fuel indicator flashes when at 0
 - Ending
 - Heightmap
 - Notes on wall or something that explains the lore

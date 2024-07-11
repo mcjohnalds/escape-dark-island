@@ -89,6 +89,7 @@ theme_override_fonts/font = ExtResource("3_nutcb")
 theme_override_font_sizes/font_size = 32
 text = "Godot Temple"
 type = 4
+outline = true
 
 [node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer/TitleContainer"]
 layout_mode = 2

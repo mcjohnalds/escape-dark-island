@@ -31,6 +31,7 @@ signal died
 @export var sprint_seconds := 3.0
 @export var sprint_regen_time := 6.0
 @export var sprint_energy_jump_cost := 0.3
+var _alive := true
 var sprint_energy := 1.0
 var _switching_weapon := false
 var _last_sprint_cooldown_at := -1000.0
@@ -57,7 +58,7 @@ var _sleeping := false
 # Input.is_action_pressed("shoot") so the gun doesn't shoot when the player
 # clicks the unpause button.
 var _shoot_button_down := false
-var night_vision := true
+var night_vision := false
 @onready var _health := max_health
 @onready var _weapon: Node3D = %Weapon
 @onready var _gun: Node3D = %Gun
@@ -1150,10 +1151,14 @@ func damage(amount: float) -> void:
 	)
 	if _health <= 0.0:
 		_health = 0.0
-		_target_weapon_position = _initial_weapon_position + Vector3.DOWN * 0.1
-		_target_weapon_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
-		await _fade_in_death_overlay()
-		died.emit()
+		if _alive:
+			_alive = false
+			_target_weapon_position = (
+				_initial_weapon_position + Vector3.DOWN * 0.1
+			)
+			_target_weapon_rotation = Vector3(-TAU * 0.05, 0.0, 0.0)
+			await _fade_in_death_overlay()
+			died.emit()
 
 
 func _fade_in_death_overlay() -> void:
@@ -1259,6 +1264,7 @@ func respawn() -> void:
 	position = _initial_position
 	rotation = _initial_rotation
 	_bring_weapon_up()
+	_alive = true
 	_gun_ammo_in_inventory /= 2
 	_grenade_count /= 2
 	_bandages_in_inventory /= 2

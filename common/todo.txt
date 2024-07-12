@@ -1,11 +1,20 @@
 Todo:
 
 - Ending
+  - Boat
+    - Colliders
+    - Screen message on use "it needs a key"
+  - Boat house
+    - Colliders
+    - Super enemy
+      - Drops key
+- Tutorial
+  - "I need to get off this island"
+- Fill in in between spaces
 - Heightmap
 - Notes on wall or something that explains the lore
 - Enemies do not enter home
 - Fix pause to see in dark exploit
-- Tutorial
 - More buildings
 - Randomly appearing messages in black goo like "go away"
 - Make sleeping finished transition less glitchy

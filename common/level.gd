@@ -5,7 +5,9 @@ class_name Level
 @onready var _omni_lights := %OmniLights
 @onready var _mesh: Node3D = %Mesh
 @onready var _player_home: Building = %PlayerHome
-@onready var _enemy_building: Building = %EnemyBuilding
+@onready var _enemy_buildings: Array[Building] = [
+	%EnemyBuilding1, %EnemyBuilding2
+]
 @onready var _fuel_indicator_3d: FuelIndicator3D = %FuelIndicator3D
 var _light_mesh_material: StandardMaterial3D
 
@@ -49,5 +51,5 @@ func get_player_home() -> Building:
 	return _player_home
 
 
-func get_enemy_building() -> Building:
-	return _enemy_building
+func get_enemy_buildings() -> Array[Building]:
+	return _enemy_buildings

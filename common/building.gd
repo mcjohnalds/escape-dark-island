@@ -1,6 +1,7 @@
 extends Node
 class_name Building
 
+@export var enemy_power := 1.0
 @onready var _retreat_locations_node: Node = $RetreatLocations
 @onready var _grabbables_node: Node = $Grabbables
 @onready var _enemies_node: Node = $Enemies
@@ -23,6 +24,7 @@ func respawn_enemy() -> void:
 	for enemy: Enemy in _enemies_node.get_children():
 		enemy.queue_free()
 	var enemy: Enemy = global.get_enemy_scene().instantiate()
+	enemy.power = enemy_power
 	enemy.retreat_locations = get_retreat_locations()
 	enemy.position = get_retreat_locations().pick_random().global_position
 	_enemies_node.add_child(enemy)

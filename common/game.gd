@@ -206,7 +206,8 @@ func _display_screen_message(text: String) -> void:
 
 
 func respawn_contents() -> void:
-	_level.get_enemy_building().respawn_enemy()
-	_level.get_enemy_building().respawn_grabbables()
+	for building in _level.get_enemy_buildings():
+		building.respawn_enemy()
+		building.respawn_grabbables()
 	if _fuel == 0.0:
 		_level.get_player_home().respawn_enemy()

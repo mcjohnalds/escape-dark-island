@@ -1,3 +1,4 @@
+@tool
 extends CharacterBody3D
 class_name Enemy
 
@@ -6,11 +7,23 @@ enum State { IDLE, ATTACK, RETREAT }
 @export var black_goo_explosion_scene: PackedScene
 @export var eye_explosion_scene: PackedScene
 @export var retreat_locations: Array[Node3D] = []
+@export var power := 1.0:
+	set(value):
+		power = value
+		if not is_node_ready():
+			return
+		_eye.scale = remap(power, 0.5, 2.0, 0.4, 1.1) * Vector3.ONE
+		_body.mesh.size.x = remap(power, 0.5, 2.0, 0.4, 0.8)
+		_body.mesh.size.y = remap(power, 0.5, 2.0, 1.0, 2.0)
+		_initial_mesh_size = _body.mesh.size
+		_initial_eye_position = _eye.position
+		_initial_body_position = _body.position
+		max_health = remap(power, 0.5, 2.0, 50.0, 400.0)
+		_health = max_health
 var min_retreat_duration := 5.0
 var movement_speed := 8.0
 var retreat_damage_threshold := 20.0
 var acceleration_speed := 2.0
-var max_health := 150.0
 var _state := State.IDLE
 var _damage_taken_since_last_state_transition := 0.0
 var _last_state_transition_at := -1000.0
@@ -19,20 +32,24 @@ var _alive := true
 var _shrinking := false
 var _falling := false
 var _last_attack_at := -1000.0
+var _initial_mesh_size: Vector2
 @onready var _navigation_agent: NavigationAgent3D = %NavigationAgent3D
 @onready var _eye: Node3D = %Eye
 @onready var _eye_cover: Node3D = %EyeCover
 @onready var _body: MeshInstance3D = %Body
 @onready var _collision_shape := %CollisionShape3D
-@onready var _initial_eye_position := _eye.position
-@onready var _initial_body_position := _body.position
-@onready var _health := max_health
 @onready var _center: Node3D = %Center
-@onready var _initial_mesh_size: Vector2 = _body.mesh.size
 @onready var _dead_body: Node3D = %DeadBody
+@onready var _initial_eye_position: Vector3
+@onready var _initial_body_position: Vector3
+@onready var _health: float
+@onready var max_health: float
 
 
 func _ready() -> void:
+	power = power
+	if Engine.is_editor_hint():
+		return
 	# Wait for the NavigationServer to sync
 	await get_tree().physics_frame
 	while true:
@@ -44,6 +61,8 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
 	_animation_time += remap(_health, 0.0, max_health, 8.0, 0.5) * delta
 	_update_navigation(delta)
 	_update_rotation(delta)
